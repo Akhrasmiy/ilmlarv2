@@ -1,0 +1,7 @@
+GET  http://localhost:3001/chat/6544ad2f1404ea5fa84eaa45
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjU0NGFkMmYxNDA0ZWE1ZmE4NGVhYTQ3In0sImlhdCI6MTY5ODk5OTY5OX0.dmFVcNDoQKTSIg1q_U_whRfQTZJRBtkcMpY4TByuZPU
+###
+GET  http://localhost:3001/chat
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjU0NGFkMmYxNDA0ZWE1ZmE4NGVhYTQ3In0sImlhdCI6MTY5ODk5OTY5OX0.dmFVcNDoQKTSIg1q_U_whRfQTZJRBtkcMpY4TByuZPU

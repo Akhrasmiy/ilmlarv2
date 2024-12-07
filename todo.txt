@@ -1,0 +1,4 @@
+pul chiqarish/kirdirish
+get userme student teacher
+getuserforcard 
+admins

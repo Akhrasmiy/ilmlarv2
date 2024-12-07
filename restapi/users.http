@@ -1,0 +1,44 @@
+Get http://localhost:3001/users?q=
+###
+POST http://localhost:3001/users
+Content-Type: application/json
+
+{
+  "first_name": "john",
+  "last_name": "doe",
+  "username": "johndoe",
+  "password": "1234",
+  "email":"johndoe123456@gmail.com"
+}
+###
+POST http://localhost:3001/users/verify
+Content-Type: application/json
+
+{
+  "email":"johndoe123456@gmail.com",
+  "password":"186837"
+}
+###
+POST http://localhost:3001/users/forgot1
+Content-Type: application/json
+
+{
+  "email":"m1axmadov@gmail.com"
+}
+###
+POST http://localhost:3001/users/forgot2
+Content-Type: application/json
+
+{
+  "email":"m1axmadov@gmail.com",
+  "password":"Jahongir7A",
+  "emailpassword":"976409"
+}
+###
+POST http://localhost:3001/users/login
+Content-Type: application/json
+
+{
+  "username": "zuxi@gmail.com",
+  "password": "zuxi"
+}
