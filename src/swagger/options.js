@@ -9,6 +9,7 @@ const options = {
             description: "Foydalanuvchini ro'yxatdan o'tkazish va boshqarish uchun API hujjatlari",
         },
         servers: [
+            { url: "https://api.ilmlar.com" }, // Adding api.ilmlar.com
             process.env.NODE_ENV === "production"
                 ? { url: "https://your-production-url.com/" }
                 : { url: "http://localhost:3000/" },
