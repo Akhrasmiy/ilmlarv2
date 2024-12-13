@@ -5,21 +5,32 @@ const db = require("../../db/db.js"); // Knex konfiguratsiyasi import qilinadi
 const addUser = async (data) => {
   return db.transaction(async (trx) => {
     // Foydalanuvchi mavjudligini tekshirish
-    const existingUser = await trx("users")
-      .where({ user_name: data.username }) // username o'rniga user_name ishlatiladi
-      .orWhere({ email: data.email })
-      .andWhere({ is_verified: true })
-      .first();
+    await trx("confirmation_code").whereIn(
+      "user_id",
+      trx("users")
+        .where({ user_name: data.username, is_verified: false })
+        .orWhere({ email: data.email, is_verified: false })
+        .select("id")
+    ).del();
 
+    await trx("users")
+      .where({ user_name: data.username, is_verified: false })
+      .orWhere({ email: data.email, is_verified: false })
+      .del();
+    const existingUser = await trx("users")
+      .where(function () {
+        this.where({ is_verified: true })
+          .andWhere({ user_name: data.username })
+          .orWhere({ email: data.email });
+      })
+      .first();
+    console.log(existingUser)
     if (existingUser) {
       throw new Error("Bu foydalanuvchi allaqachon mavjud.");
     }
 
     // Tasdiqlanmagan foydalanuvchilarni o'chirish
-    await trx("users")
-      .where({ user_name: data.username, is_verified: false })
-      .orWhere({ email: data.email, is_verified: false })
-      .del();
+
 
     // Parolni xeshlash
     const hashedPassword = await hash(data.password, 10);

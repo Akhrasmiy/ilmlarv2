@@ -12,7 +12,7 @@ const options = {
             { url: "https://api.ilmlar.com" }, // Adding api.ilmlar.com
             process.env.NODE_ENV === "production"
                 ? { url: "https://your-production-url.com/" }
-                : { url: "http://localhost:3000/" },
+                : { url: "http://localhost:3004/" },
         ],
         components: {
             securitySchemes: {
