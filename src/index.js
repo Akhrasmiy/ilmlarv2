@@ -21,7 +21,8 @@ const swaggerSpec = swaggerJSDoc(options);
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // Swagger UI
 app.use(bodyParser.json());
 app.use(cors("*"));
-
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 // Users API
 app.use("/api/users", usersController);
 app.use("/api/actioncourses", userCoursesRoute);
