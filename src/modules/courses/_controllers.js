@@ -137,8 +137,8 @@ exports.updateCourseVideo = async (req, res, next) => {
 
 exports.getCourses = async (req, res, next) => {
   try {
-    const userId = req.user.id;
-    const userRole = req.user.role;
+    const userId = req?.user?.id||null;
+    const userRole = req?.user?.role||null;
 
     const courses = await getCoursesService(userId, userRole);
 
