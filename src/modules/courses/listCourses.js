@@ -43,23 +43,25 @@ exports.getPurchasedCoursesService = async (userId) => {
 // 3. Kurs detallari (sotib olingan yoki olinmagan)
 exports.getCourseDetailsService = async (userId, courseId) => {
   const course = await db("courses")
-    .leftJoin("course_users", function () {
-      this.on("courses.id", "=", "course_users.course_id")
-        .andOn("course_users.user_id", "=", db.raw("?", [userId]));
-    })
     .where("courses.id", courseId)
     .select(
-      "courses.*",
-      db.raw(
-        "CASE WHEN course_users.id IS NOT NULL THEN TRUE ELSE FALSE END AS is_purchased"
-      )
+      "courses.*"
     )
     .first();
-
-
   if (!course) {
     throw new Error("Kurs topilmadi.");
   }
+  const course_users = await db("course_users")
+    .where("course_id", courseId).andWhere("user_id", userId)
+    .select(
+      "*"
+    )
+    .first();
+  if (course_users) {
+    course.is_purchased = true
+  }
+  else course.is_purchased = false
+
 
   // 1. Kursning o‘rtacha bahosini hisoblash
   const averageScore = await db("course_score")
