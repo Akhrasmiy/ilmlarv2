@@ -1,27 +1,27 @@
 const db = require("../../db/db.js");
 
 exports.getCoursesService = async (userId, userRole) => {
-    if (userRole === 1) {
-        // O'qituvchi uchun faqat o'z kurslarini olish va o'rtacha reytingni hisoblash
-        return await db("courses")
-            .leftJoin("course_score", "courses.id", "course_score.course_id")
-            .where({ "courses.teacher_id": userId })
-            .groupBy("courses.id")
-            .select(
-                "courses.*",
-                db.raw("COALESCE(AVG(course_score.score), 0) as average_score")
-            );
-    } else {
-        // Talaba uchun barcha kurslarni olish va o'rtacha reytingni hisoblash
-        return await db("courses")
-            .leftJoin("course_score", "courses.id", "course_score.course_id")
-            .groupBy("courses.id")
-            .where({ "courses.is_verified": true })
-            .select(
-                "courses.*",
-                db.raw("COALESCE(AVG(course_score.score), 0) as average_score")
-            );
-    } 
+  if (userRole === 1) {
+    // O'qituvchi uchun faqat o'z kurslarini olish va o'rtacha reytingni hisoblash
+    return await db("courses")
+      .leftJoin("course_score", "courses.id", "course_score.course_id")
+      .where({ "courses.teacher_id": userId })
+      .groupBy("courses.id")
+      .select(
+        "courses.*",
+        db.raw("COALESCE(AVG(course_score.score), 0) as average_score")
+      );
+  } else {
+    // Talaba uchun barcha kurslarni olish va o'rtacha reytingni hisoblash
+    return await db("courses")
+      .leftJoin("course_score", "courses.id", "course_score.course_id")
+      .groupBy("courses.id")
+      .where({ "courses.is_verified": true })
+      .select(
+        "courses.*",
+        db.raw("COALESCE(AVG(course_score.score), 0) as average_score")
+      );
+  }
 };
 
 // 1. Saqlangan kurslarni olish
@@ -47,12 +47,15 @@ exports.getCourseDetailsService = async (userId, courseId) => {
       this.on("courses.id", "=", "course_users.course_id")
         .andOn("course_users.user_id", "=", db.raw("?", [userId]));
     })
-    .where({ "courses.id": courseId })
+    .where("courses.id", courseId)
     .select(
       "courses.*",
-      db.raw("CASE WHEN course_users.id IS NOT NULL THEN TRUE ELSE FALSE END AS is_purchased")
+      db.raw(
+        "CASE WHEN course_users.id IS NOT NULL THEN TRUE ELSE FALSE END AS is_purchased"
+      )
     )
     .first();
+
 
   if (!course) {
     throw new Error("Kurs topilmadi.");
