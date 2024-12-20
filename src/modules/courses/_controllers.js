@@ -1,5 +1,5 @@
 
-const { createCourseSchema, addCourseVideosSchema, completeCourseSchema, editCourseVideosSchema } = require("./_schemas");
+const {  addCourseVideosSchema, completeCourseSchema, editCourseVideosSchema, createCourseSchema } = require("./_schemas");
 const { BadRequestError } = require("../../shared/errors");
 const { createCourseService } = require("./createCourseservise");
 const { addCourseVideosService } = require("./addCourseVideosServise");

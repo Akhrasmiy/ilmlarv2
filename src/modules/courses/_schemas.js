@@ -1,5 +1,42 @@
 const Joi = require("joi");
 
+const createCourseSchema = Joi.object({
+  name: Joi.string().required(),
+  description: Joi.string().allow(null, ""),
+  category: Joi.number().integer().required(),
+  price: Joi.number().positive().allow(0).optional(),
+  period: Joi.number().integer().optional(),
+  level: Joi.number().integer().optional(),
+  language: Joi.number().integer().optional(),
+  trieler: Joi.string().allow(""),
+  study_parties: Joi.array()
+    .items(
+      Joi.object({
+        name: Joi.string().required(),
+      })
+    )
+    .optional(),
+});
+
+const addCourseVideosSchema = Joi.object({
+  course_id: Joi.number().integer().required(),
+  videos: Joi.array()
+    .items(
+      Joi.object({
+        file: Joi.string().required(),
+        name: Joi.string().required(),
+        description: Joi.string().allow(null, ""),
+        video_link: Joi.string().uri().required(),
+        is_open: Joi.boolean().optional(),
+      })
+    )
+    .required(),
+});
+
+const completeCourseSchema = Joi.object({
+  course_id: Joi.number().integer().required(),
+});
+
 const addCommitSchema = Joi.object({
   text: Joi.string()
     .min(1)
@@ -31,4 +68,7 @@ const addScoreSchema = Joi.object({
 module.exports = {
   addCommitSchema,
   addScoreSchema,
+  completeCourseSchema,
+  createCourseSchema,
+  addCourseVideosSchema
 };
