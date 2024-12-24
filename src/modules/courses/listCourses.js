@@ -44,24 +44,19 @@ exports.getPurchasedCoursesService = async (userId) => {
 exports.getCourseDetailsService = async (userId, courseId) => {
   const course = await db("courses")
     .where("courses.id", courseId)
-    .select(
-      "courses.*"
-    )
+    .select("courses.*")
     .first();
   if (!course) {
     throw new Error("Kurs topilmadi.");
   }
   const course_users = await db("course_users")
-    .where("course_id", courseId).andWhere("user_id", userId)
-    .select(
-      "*"
-    )
+    .where("course_id", courseId)
+    .andWhere("user_id", userId)
+    .select("*")
     .first();
   if (course_users) {
-    course.is_purchased = true
-  }
-  else course.is_purchased = false
-
+    course.is_purchased = true;
+  } else course.is_purchased = false;
 
   // 1. Kursning o‘rtacha bahosini hisoblash
   const averageScore = await db("course_score")
@@ -118,8 +113,26 @@ exports.getCourseDetailsService = async (userId, courseId) => {
       "title",
       "description",
       "is_free",
-      course.is_purchased ? "video_link" : db.raw("NULL AS video_link"), // Video URL faqat sotib olingan bo'lsa
-      course.is_purchased ? "file" : db.raw("NULL AS file") // Fayl faqat sotib olingan bo'lsa
+      db.raw(
+        `
+      CASE 
+        WHEN is_free = true THEN video_link
+        WHEN is_free = false AND ? = true THEN video_link
+        ELSE NULL
+      END AS video_link
+    `,
+        [course.is_purchased]
+      ), // Sotib olinganlikni tekshirish
+      db.raw(
+        `
+      CASE 
+        WHEN is_free = true THEN file
+        WHEN is_free = false AND ? = true THEN file
+        ELSE NULL
+      END AS file
+    `,
+        [course.is_purchased]
+      ) // Sotib olinganlikni tekshirish
     );
 
   course.videos = videos;
@@ -192,8 +205,18 @@ exports.getCourseDetailsServicewithoutToken = async (courseId) => {
       "title",
       "description",
       "is_free",
-      db.raw("NULL AS video_link"), // Video URL sotib olinmagan holatda mavjud emas
-      db.raw("NULL AS file") // Fayl sotib olinmagan holatda mavjud emas
+      db.raw(`
+      CASE 
+        WHEN is_free = true THEN video_link
+        ELSE NULL
+      END AS video_link
+    `), // Video URL faqat is_free = true bo'lsa ko'rinadi
+      db.raw(`
+      CASE 
+        WHEN is_free = true THEN file
+        ELSE NULL
+      END AS file
+    `) // Fayl faqat is_free = true bo'lsa ko'rinadi
     );
 
   course.videos = videos;
@@ -206,7 +229,9 @@ exports.getCoursecardDetailsService = async (userId, courseId) => {
     .where({ "courses.id": courseId })
     .select(
       "courses.*",
-      db.raw("CASE WHEN course_users.id IS NOT NULL THEN TRUE ELSE FALSE END AS is_purchased")
+      db.raw(
+        "CASE WHEN course_users.id IS NOT NULL THEN TRUE ELSE FALSE END AS is_purchased"
+      )
     )
     .first();
   // 1. Kursning o‘rtacha bahosini hisoblash
@@ -216,7 +241,6 @@ exports.getCoursecardDetailsService = async (userId, courseId) => {
     .first();
 
   course.average_score = averageScore?.average_score || 0;
-
 
   // 3. `course_commit` larni olish
   const commits = await db("course_commit")
@@ -235,4 +259,3 @@ exports.getCoursecardDetailsService = async (userId, courseId) => {
 
   return course;
 };
-
