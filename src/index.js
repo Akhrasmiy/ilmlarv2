@@ -26,8 +26,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Users API
 app.use("/api/users", usersController);
-app.use("/api/category", usersController);
-app.use("/api/actioncourses", categoryController);
+app.use("/api/category", categoryController);
+app.use("/api/actioncourses", userCoursesRoute);
 app.use("/api/courses", coursesController);
 
 const PORT = process.env.PORT || 3004;
