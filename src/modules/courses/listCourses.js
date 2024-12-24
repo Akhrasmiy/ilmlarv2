@@ -16,7 +16,6 @@ exports.getCoursesService = async (userId, userRole) => {
     return await db("courses")
       .leftJoin("course_score", "courses.id", "course_score.course_id")
       .groupBy("courses.id")
-      .where({ "courses.is_verified": true })
       .select(
         "courses.*",
         db.raw("COALESCE(AVG(course_score.score), 0) as average_score")

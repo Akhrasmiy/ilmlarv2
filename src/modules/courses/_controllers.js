@@ -54,10 +54,10 @@ exports.createCourse = async (req, res, next) => {
 
 exports.addCourseVideos = async (req, res, next) => {
   try {
-    const { error } = addCourseVideosSchema.validate(req.body);
-    if (error) {
-      throw new BadRequestError(error.details[0].message);
-    }
+    // const { error } = addCourseVideosSchema.validate(req.body);
+    // if (error) {
+    //   throw new BadRequestError(error.details[0].message);
+    // }
 
     await addCourseVideosService(req.body, req.user.id, req.files.video, req.files?.file);
 

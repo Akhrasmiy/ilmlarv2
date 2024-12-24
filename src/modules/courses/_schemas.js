@@ -20,7 +20,7 @@ const createCourseSchema = Joi.object({
 
 const addCourseVideosSchema = Joi.object({
   course_id: Joi.number().integer().required(),
-  videos: Joi.array()
+  video: Joi.array()
     .items(
       Joi.object({
         file: Joi.string().required(),
