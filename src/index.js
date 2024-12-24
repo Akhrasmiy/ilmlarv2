@@ -5,6 +5,7 @@ const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const options = require("./swagger/options"); // Swagger konfiguratsiyasi
 const usersController = require("./modules/users/_api"); // Users API marshrutlari
+const categoryController = require("./modules/category/_api"); // Users API marshrutlari
 const coursesController = require("./modules/courses/_api"); // Users API marshrutlari
 const userCoursesRoute = require("./modules/users-courses/_api"); // Users API marshrutlari
 const fileUpload = require("express-fileupload");
@@ -25,7 +26,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Users API
 app.use("/api/users", usersController);
-app.use("/api/actioncourses", userCoursesRoute);
+app.use("/api/category", usersController);
+app.use("/api/actioncourses", categoryController);
 app.use("/api/courses", coursesController);
 
 const PORT = process.env.PORT || 3004;
