@@ -2,6 +2,7 @@ const db = require("../../db/db.js"); // Knex konfiguratsiyasi import qilinadi
 
 const clickVerify = async (req, res, next) => {
   try {
+    console.log("tekshirildi")
     const userId = req.body.merchant_trans_id;
     let user = await db("users")
       .where("payment_id", userId)
@@ -39,6 +40,8 @@ const clickVerify = async (req, res, next) => {
 
 const clickTolov = async (req, res, next) => {
   try {
+    console.log("tolandi")
+
     const userId = req.body.merchant_trans_id;
     console.log(userId);
 
