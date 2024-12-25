@@ -7,6 +7,7 @@ const options = require("./swagger/options"); // Swagger konfiguratsiyasi
 const usersController = require("./modules/users/_api"); // Users API marshrutlari
 const categoryController = require("./modules/category/_api"); // Users API marshrutlari
 const coursesController = require("./modules/courses/_api"); // Users API marshrutlari
+const outApisController = require("./modules/outApis/_api"); // Users API marshrutlari
 const userCoursesRoute = require("./modules/users-courses/_api"); // Users API marshrutlari
 const fileUpload = require("express-fileupload");
 
@@ -29,6 +30,7 @@ app.use("/api/users", usersController);
 app.use("/api/category", categoryController);
 app.use("/api/actioncourses", userCoursesRoute);
 app.use("/api/courses", coursesController);
+app.use("/api/outApis", outApisController);
 
 const PORT = process.env.PORT || 3004;
 app.listen(PORT, () => {
