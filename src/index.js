@@ -9,6 +9,7 @@ const categoryController = require("./modules/category/_api"); // Users API mars
 const coursesController = require("./modules/courses/_api"); // Users API marshrutlari
 const outApisController = require("./modules/outApis/_api"); // Users API marshrutlari
 const userCoursesRoute = require("./modules/users-courses/_api"); // Users API marshrutlari
+const adminapis = require("./modules/adminapis/_api"); // Users API marshrutlari
 const fileUpload = require("express-fileupload");
 
 const app = express();
@@ -31,6 +32,7 @@ app.use("/api/category", categoryController);
 app.use("/api/actioncourses", userCoursesRoute);
 app.use("/api/courses", coursesController);
 app.use("/api/outApis", outApisController);
+app.use("/api/admins", adminapis);
 
 const PORT = process.env.PORT || 3004;
 app.listen(PORT, () => {
