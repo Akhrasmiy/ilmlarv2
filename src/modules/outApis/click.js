@@ -1,17 +1,21 @@
 const db = require("../../db/db.js"); // Knex konfiguratsiyasi import qilinadi
+const axios = require("axios");
+const { randomUUID } = require("crypto");
+const httpValidator = require("../../shared/http-validator/index.js");
+const { payoutSchema } = require("./_schemas.js");
 
 const clickVerify = async (req, res, next) => {
   try {
-    console.log("tekshirildi",req.body)
+    console.log("tekshirildi", req.body);
     const userId = req.body.merchant_trans_id;
-    console.log(userId)
+    console.log(userId);
     let user = await db("users")
       .where("payment_id", userId)
       .andWhere("is_verified", true)
       .andWhere("type", 2) // Faqat type: 2 bo'lgan foydalanuvchilar uchun
       .first();
 
-    console.log(user,22);
+    console.log(user, 22);
 
     if (!user) {
       return res.send({
@@ -41,7 +45,7 @@ const clickVerify = async (req, res, next) => {
 
 const clickTolov = async (req, res, next) => {
   try {
-    console.log("tolandi")
+    console.log("tolandi");
 
     const userId = req.body.merchant_trans_id;
     console.log(userId);
@@ -93,5 +97,100 @@ const clickTolov = async (req, res, next) => {
     });
   }
 };
+const whoiscardowner = async (req, res, next) => {
+  try {
+    const cardNumber = req.params.cardNumber;
 
-module.exports = { clickVerify, clickTolov };
+    const username = "ilmlarcom";
+    const password = "dEpSPx^LWnK79VhC(EKh-A]*P";
+    const authString = Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    );
+
+    const response = await axios.post(
+      "https://pay.myuzcard.uz/api/Credit/getCardOwnerInfoByPan",
+      { cardNumber: cardNumber },
+      { headers: { Authorization: `Basic ${authString}` } }
+    );
+
+    console.log(response.data);
+    res.send(response.data);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error });
+  }
+};
+
+const payoutteacher = async (req, res, next) => {
+  try {
+    // Validate the request body
+    httpValidator({ body: req.body }, payoutSchema);
+
+    const userId = req.user.id; // User ID olish
+    const amount = req.body.amount; // To'lov summasi
+
+    // Foydalanuvchini olish
+    const user = await db("users").where("id", userId).first();
+    if (!user) {
+      return res.status(404).send("Foydalanuvchi topilmadi");
+    }
+
+    // Hisobni tekshirish
+    const userBalance = await db("transactions")
+      .where("user_id", userId)
+      .sum("credit as totalCredit")
+      .sum("debit as totalDebit")
+      .first();
+
+    const balance =
+      (userBalance.totalCredit || 0) - (userBalance.totalDebit || 0);
+    console.log(user, userBalance, balance);
+    if (balance < amount) {
+      return res.status(400).send("Hisobda yetarli pul mavjud emas");
+    }
+
+    // MyUzCard orqali to'lov ma'lumotlari
+    const extraId = randomUUID(); // Generate a unique extraId
+    const data = {
+      extraId,
+      transactionData: req.body.transactionData,
+    };
+
+    const username = "ilmlarcom";
+    const password = "dEpSPx^LWnK79VhC(EKh-A]*P";
+    const authString = Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    );
+
+    // To'lovni amalga oshirish
+    const response = await axios.post(
+      "https://pay.myuzcard.uz/api/Credit/Credit",
+      { ...data, ...req.body },
+      { headers: { Authorization: `Basic ${authString}` } }
+    );
+
+    if (response.status === 200) {
+      // Transactions jadvaliga yozuv qo'shish
+      await db("transactions").insert({
+        user_id: userId,
+        debit: amount, // Pul yechish
+        credit: 0,
+        comment: "Payment to teacher",
+        is_internal: false,
+        extra_id: extraId, // Save the generated extraId for reference
+      });
+
+      return res
+        .status(201)
+        .send({ message: "To'lov muvaffaqiyatli amalga oshirildi", extraId });
+    } else {
+      return res.status(400).send(response.data);
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({ error: "Ichki xatolik yuz berdi" });
+  }
+};
+
+
+module.exports = { clickVerify, clickTolov, whoiscardowner, payoutteacher };

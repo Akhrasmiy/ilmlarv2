@@ -9,7 +9,7 @@ const express = require("express");
  * @param {express.NextFunction} next - Keyingi middleware
  */
 module.exports = (err, req, res, next) => {
-  console.error(err);
+  console.error("Error Middleware Triggered:", err);
 
   let status = 500;
   let message = "Ichki server xatoligi.";
@@ -27,6 +27,9 @@ module.exports = (err, req, res, next) => {
     status = 404;
     message = err.message;
   }
+
+  // Log response data for debugging
+  console.log("Sending Response:", { status, message });
 
   res.status(status).json({ error: message });
 };
