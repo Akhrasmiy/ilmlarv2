@@ -2,7 +2,7 @@ const db = require("../../db/db.js"); // Knex konfiguratsiyasi import qilinadi
 
 const clickVerify = async (req, res, next) => {
   try {
-    console.log("tekshirildi")
+    console.log("tekshirildi",req.body)
     const userId = req.body.merchant_trans_id;
     let user = await db("users")
       .where("payment_id", userId)
