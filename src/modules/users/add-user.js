@@ -74,6 +74,7 @@ const addUser = async (data) => {
         link: data.link || null,
         status: 1, // Default status
         info: data.info || null,
+        phone: data.phone || null,
       });
     }
 

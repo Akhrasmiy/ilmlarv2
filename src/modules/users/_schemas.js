@@ -10,6 +10,7 @@ exports.postUserSChema = {
     type: Joi.string().valid("student", "teacher").required(),
     specialization: Joi.string().optional(), // Faqat o'qituvchi uchun
     link: Joi.string().optional(), // Faqat o'qituvchi uchun
+    phone: Joi.string().optional(), // Faqat o'qituvchi uchun
     info: Joi.string().optional(), // Faqat o'qituvchi uchun
   }),
 };
