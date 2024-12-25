@@ -7,7 +7,7 @@ const verified = require('./isverified');
 const { replynewpassword, newpassword } = require('./replynewpassword');
 const { editUser } = require('./edit-user');
 const userme = require('./userme');
-const { getPublicTeacherAccountService } = require('./getTeacheraccount');
+const { getPublicTeacherAccountService, getPublicTeachersAccountService } = require('./getTeacheraccount');
 
 /**
  * @param {express.Request} req
@@ -132,7 +132,7 @@ const updateUser = async (req, res, next) => {
 };
 const getPublicTeacherAccount = async (req, res, next) => {
   try {
-    const teacherId = req.params.is; // O'qituvchi ID query orqali keladi
+    const teacherId = req.params.id; // O'qituvchi ID query orqali keladi
 
     if (!teacherId) {
       return res.status(400).json({ message: "O'qituvchi ID talab qilinadi." });
@@ -148,9 +148,23 @@ const getPublicTeacherAccount = async (req, res, next) => {
     next(err);
   }
 };
+const getPublicTeacherAccounts = async (req, res, next) => {
+  try {
+
+    const result = await getPublicTeachersAccountService();
+
+    res.status(200).json({
+      message: "O'qituvchi ma'lumotlari muvaffaqiyatli olindi.",
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 module.exports = {
   getPublicTeacherAccount,
+  getPublicTeacherAccounts,
   postUser,
   loginUser,
   verify,

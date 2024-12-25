@@ -7,7 +7,7 @@ const db = require("../../db/db.js");
 exports.getPublicTeacherAccountService = async (teacherId) => {
   // O'qituvchi haqida asosiy ma'lumot
   const teacher = await db("users")
-    .where({ id: teacherId, type: "teacher" })
+    .where({ id: teacherId, type: 1 })
     .select("id", "first_name", "last_name", "email")
     .first();
 
@@ -24,5 +24,20 @@ exports.getPublicTeacherAccountService = async (teacherId) => {
   return {
     ...teacher,
     courses,
+  };
+};
+
+exports.getPublicTeachersAccountService = async () => {
+  // O'qituvchi haqida asosiy ma'lumot
+  const teachers = await db("users")
+    .where({ type: 1 })
+    .leftJoin("teacher_more_date", "users.id", "teacher_more_date.user_id")
+    .select("users.id", "users.first_name", "users.last_name", "users.email","users.profile_img","teacher_more_date.spiceal")
+
+
+
+  // Ma'lumotlarni birlashtirib qaytarish
+  return {
+    teachers
   };
 };

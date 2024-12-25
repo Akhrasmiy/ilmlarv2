@@ -1,5 +1,5 @@
 const express = require('express');
-const { postUser, loginUser, verify, forgotPassword, forgotPassword2, GetUser, updateUser, getPublicTeacherAccount } = require('./_controllers');
+const { postUser, loginUser, verify, forgotPassword, forgotPassword2, GetUser, updateUser, getPublicTeacherAccount, getPublicTeacherAccounts } = require('./_controllers');
 const isLoggedIn = require('../../shared/auth/is-loggedin');
 
 const router = express.Router();
@@ -7,7 +7,8 @@ const router = express.Router();
 router.post('/', postUser);
 router.put('/',isLoggedIn, updateUser);
 router.get('/userme',isLoggedIn, GetUser);
-router.get('/teacheraccout/:id',isLoggedIn, getPublicTeacherAccount);
+router.get('/teacheraccout/:id', getPublicTeacherAccount);
+router.get('/teacheraccouts/', getPublicTeacherAccounts);
 router.post('/verify',verify );
 router.post('/login',loginUser)
 router.post('/forgot1',forgotPassword)
