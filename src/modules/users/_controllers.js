@@ -8,6 +8,7 @@ const { replynewpassword, newpassword } = require('./replynewpassword');
 const { editUser } = require('./edit-user');
 const userme = require('./userme');
 const { getPublicTeacherAccountService, getPublicTeachersAccountService } = require('./getTeacheraccount');
+const editProfileImage = require('./edit_users_image');
 
 /**
  * @param {express.Request} req
@@ -161,7 +162,20 @@ const getPublicTeacherAccounts = async (req, res, next) => {
     next(err);
   }
 };
+const editProfileimageController = async (req, res, next) => {
+  try {
 
+    // Pass req.files.file (uploaded file) to the service
+    const courseId = await editProfileImage(req.user.id,req.files.file);
+
+    res.status(201).json({
+      message: "Course created successfully",
+      data: { courseId },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 module.exports = {
   getPublicTeacherAccount,
   getPublicTeacherAccounts,
@@ -171,5 +185,6 @@ module.exports = {
   forgotPassword,
   forgotPassword2,
   GetUser,
-  updateUser
+  updateUser,
+  editProfileimageController
 };
