@@ -4,13 +4,14 @@ const clickVerify = async (req, res, next) => {
   try {
     console.log("tekshirildi",req.body)
     const userId = req.body.merchant_trans_id;
+    console.log(userId)
     let user = await db("users")
       .where("payment_id", userId)
       .andWhere("is_verified", true)
       .andWhere("type", 2) // Faqat type: 2 bo'lgan foydalanuvchilar uchun
       .first();
 
-    console.log(user);
+    console.log(user,22);
 
     if (!user) {
       return res.send({
