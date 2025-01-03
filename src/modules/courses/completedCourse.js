@@ -9,5 +9,5 @@ exports.completeCourseService = async (data, teacherId) => {
         throw new Error("Kurs mavjud emas yoki bu amalni bajarish huquqiga ega emassiz.");
     }
 
-    await db("courses").where({ id: data.course_id }).update({ status: 1 });
+    await db("courses").where({ id: data.course_id }).update({ status: 2 });
 };
