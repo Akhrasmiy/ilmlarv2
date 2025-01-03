@@ -2,21 +2,42 @@ const { hash } = require("bcryptjs");
 const sendEmail = require("../../nodemeiler");
 const db = require("../../db/db.js"); // Knex konfiguratsiyasi import qilinadi
 
+const generatePaymentId = async (trx) => {
+  let paymentId;
+  let isUnique = false;
+
+  while (!isUnique) {
+    // 6 xonali random son yaratish
+    paymentId = Math.floor(100000 + Math.random() * 900000);
+
+    // Unikal bo'lishini tekshirish
+    const existingPayment = await trx("users").where({ payment_id: paymentId }).first();
+    if (!existingPayment) {
+      isUnique = true;
+    }
+  }
+
+  return paymentId;
+};
+
 const addUser = async (data) => {
   return db.transaction(async (trx) => {
     // Foydalanuvchi mavjudligini tekshirish
-    await trx("confirmation_code").whereIn(
-      "user_id",
-      trx("users")
-        .where({ user_name: data.username, is_verified: false })
-        .orWhere({ email: data.email, is_verified: false })
-        .select("id")
-    ).del();
+    await trx("confirmation_code")
+      .whereIn(
+        "user_id",
+        trx("users")
+          .where({ user_name: data.username, is_verified: false })
+          .orWhere({ email: data.email, is_verified: false })
+          .select("id")
+      )
+      .del();
 
     await trx("users")
       .where({ user_name: data.username, is_verified: false })
       .orWhere({ email: data.email, is_verified: false })
       .del();
+
     const existingUser = await trx("users")
       .where(function () {
         this.where({ is_verified: true })
@@ -24,13 +45,10 @@ const addUser = async (data) => {
           .orWhere({ email: data.email });
       })
       .first();
-    console.log(existingUser)
+
     if (existingUser) {
       throw new Error("Bu foydalanuvchi allaqachon mavjud.");
     }
-
-    // Tasdiqlanmagan foydalanuvchilarni o'chirish
-
 
     // Parolni xeshlash
     const hashedPassword = await hash(data.password, 10);
@@ -48,6 +66,9 @@ const addUser = async (data) => {
       throw new Error("Type noto'g'ri.");
     }
 
+    // Random va unikal payment_id yaratish
+    const paymentId = await generatePaymentId(trx);
+
     // Yangi foydalanuvchini qo'shish va ID ni olish
     const [userId] = await trx("users")
       .insert({
@@ -60,7 +81,7 @@ const addUser = async (data) => {
         created_at: new Date(),
         last_login_at: null,
         type: typeRecord.id, // `type` bo'yicha ID
-        payment_id: data.payment_id || null,
+        payment_id: paymentId, // Yangi unikal payment_id
       })
       .returning("id"); // ID ni qaytarish
 
