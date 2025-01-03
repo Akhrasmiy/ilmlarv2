@@ -90,7 +90,7 @@ const buyCourseService = async ({ course_id, user_id }) => {
                 is_internal: true,
                 created_at: new Date(),
             });
-            // 4.4. O'quvchi uchun tranzaksiya yaratish
+            // 4.4. ilmlar uchun tranzaksiya yaratish
             await trx('transactions').insert({
                 user_id: null,
                 debit: 0,
@@ -99,7 +99,10 @@ const buyCourseService = async ({ course_id, user_id }) => {
                 is_internal: true,
                 created_at: new Date(),
             });
-
+            await trx('own_transaction').insert({
+                total: course_price - course.price,
+                credit:course_price - course.price
+            });
             // Agar barcha jarayonlar muvaffaqiyatli bo'lsa:
             return {
                 status: 201,

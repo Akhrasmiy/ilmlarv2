@@ -81,6 +81,11 @@ const clickTolov = async (req, res, next) => {
       is_internal: false, // Click to'lov tashqi operatsiya bo'lganligi uchun
     });
 
+    await db("own_transaction").insert({
+      total:-amount*0.03,
+      provider_fee:-amount*0.02,
+      tax_it_park:-amount*0.01,
+    });
     // Muvaffaqiyatli javobni qaytarish
     res.send({
       click_trans_id: req.body.click_trans_id,
