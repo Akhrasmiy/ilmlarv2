@@ -15,6 +15,7 @@ exports.getTeachersservise = async () => {
         "teacher_more_date.spiceal as speciality",
         "teacher_more_date.link",
         "teacher_more_date.info",
+        "teacher_more_date.phone",
         "teacher_status.name as status_name"
       )
       .where("users.type", 1); // type: 1 indicates teacher

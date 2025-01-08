@@ -1,26 +1,44 @@
 const db = require("../../db/db.js");
 
 exports.getCoursesService = async (userId, userRole) => {
+  const { teacherIds, categories, periods, languages, search } = filters || {};
+
+  const query = db("courses")
+    .leftJoin("course_score", "courses.id", "course_score.course_id")
+    .groupBy("courses.id")
+    .select(
+      "courses.*",
+      db.raw("COALESCE(AVG(course_score.score), 0) as average_score")
+    );
+
+  // O'qituvchi uchun faqat o'z kurslarini olish
   if (userRole === 1) {
-    // O'qituvchi uchun faqat o'z kurslarini olish va o'rtacha reytingni hisoblash
-    return await db("courses")
-      .leftJoin("course_score", "courses.id", "course_score.course_id")
-      .where({ "courses.teacher_id": userId })
-      .groupBy("courses.id")
-      .select(
-        "courses.*",
-        db.raw("COALESCE(AVG(course_score.score), 0) as average_score")
-      );
-  } else {
-    // Talaba uchun barcha kurslarni olish va o'rtacha reytingni hisoblash
-    return await db("courses")
-      .leftJoin("course_score", "courses.id", "course_score.course_id")
-      .groupBy("courses.id")
-      .select(
-        "courses.*",
-        db.raw("COALESCE(AVG(course_score.score), 0) as average_score")
-      );
+    query.where({ "courses.teacher_id": userId });
   }
+
+  // Filtrlar qo'shish
+  if (teacherIds?.length) {
+    query.whereIn("courses.teacher_id", teacherIds);
+  }
+  if (categories?.length) {
+    query.whereIn("courses.category", categories);
+  }
+  if (periods?.length) {
+    query.whereIn("courses.period", periods);
+  }
+  if (languages?.length) {
+    query.whereIn("courses.language", languages);
+  }
+
+  // Qidiruvni qo'shish
+  if (search) {
+    query.where(function () {
+      this.where("courses.name", "ilike", `%${search}%`)
+        .orWhere("courses.discription", "ilike", `%${search}%`);
+    });
+  }
+
+  return query;
 };
 
 // 1. Saqlangan kurslarni olish

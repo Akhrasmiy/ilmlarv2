@@ -137,10 +137,19 @@ exports.updateCourseVideo = async (req, res, next) => {
 
 exports.getCourses = async (req, res, next) => {
   try {
-    const userId = req?.user?.id||null;
-    const userRole = req?.user?.role||null;
+    const userId = req?.user?.id || null;
+    const userRole = req?.user?.role || null;
 
-    const courses = await getCoursesService(userId, userRole);
+    // Querydan filtrlarni olish
+    const filters = {
+      teacherIds: req.query.teacher_ids ? req.query.teacher_ids.split(",") : [],
+      categories: req.query.categories ? req.query.categories.split(",") : [],
+      periods: req.query.periods ? req.query.periods.split(",") : [],
+      languages: req.query.languages ? req.query.languages.split(",") : [],
+      search: req.query.search || null,
+    };
+
+    const courses = await getCoursesService(userId, userRole, filters);
 
     res.status(200).json({
       message: "Kurslar muvaffaqiyatli olindi.",
