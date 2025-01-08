@@ -54,6 +54,7 @@ exports.getTeachersservise = async () => {
           speciality: teacher.speciality,
           link: teacher.link,
           info: teacher.info,
+          phone: teacher.phone,
           status_name: teacher.status_name,
           totalDebit,
           totalCredit,
