@@ -9,7 +9,7 @@ exports.getPublicTeacherAccountService = async (teacherId) => {
   const teacher = await db("users")
     .where({ id: teacherId, type: 1 })
     .leftJoin("teacher_more_date", "users.id", "teacher_more_date.user_id")
-    .select("users.id", "users.first_name", "users.last_name", "users.email", "users.profile_img","teacher_more_date.spiceal")
+    .select("users.id","users.type", "users.first_name", "users.last_name", "users.email", "users.profile_img","teacher_more_date.spiceal")
     .first();
 
   if (!teacher) {
