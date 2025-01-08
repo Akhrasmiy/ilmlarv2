@@ -10,13 +10,13 @@ const sendEmail = async (email, password) => {
     port: 587,
     secure: false,
     auth: {
-      user: "giybatchat@gmail.com",
-      pass: "ifgmmkgchsuymepg",
+      user: "infoilmlar@gmail.com",
+      pass: "jjencvfzxixbqkoi",
     },
   });
   try {
     const info = await transporter.sendMail({
-      from: "giybatchat@gmail.com",
+      from: "infoilmlar@gmail.com",
       to: email,
       subject: "tasdiqlash kodi",
       html: `<h1>${password}<h1>`,
