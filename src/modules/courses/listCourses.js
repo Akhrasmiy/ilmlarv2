@@ -1,6 +1,6 @@
 const db = require("../../db/db.js");
 
-exports.getCoursesService = async (userId, userRole) => {
+exports.getCoursesService = async (userId, userRole,filters) => {
   const { teacherIds, categories, periods, languages, search } = filters || {};
 
   const query = db("courses")
