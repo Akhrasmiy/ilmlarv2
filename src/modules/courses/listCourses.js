@@ -1,49 +1,54 @@
 const db = require("../../db/db.js");
 
-exports.getCoursesService = async (userId, userRole,filters) => {
-  const { teacherIds, categories, periods, languages, search } = filters || {};
-
+const getCoursesService = async (userId, userRole, filters) => {
   const query = db("courses")
-    .leftJoin("course_score", "courses.id", "course_score.course_id")
-    .groupBy("courses.id")
     .select(
       "courses.*",
-      db.raw("COALESCE(AVG(course_score.score), 0) as average_score")
+      db.raw(`
+        CASE 
+          WHEN price = 0 THEN true
+          ELSE false
+        END AS is_free
+      `) // Dynamically calculate is_free based on price
     );
 
-  // O'qituvchi uchun faqat o'z kurslarini olish
-  if (userRole === 1) {
-    query.where({ "courses.teacher_id": userId });
+  // Apply teacher filter
+  if (filters.teacherIds.length > 0) {
+    query.whereIn("teacher_id", filters.teacherIds);
   }
 
-  // Filtrlar qo'shish
-  if (teacherIds?.length) {
-    query.whereIn("courses.teacher_id", teacherIds);
-  }
-  if (categories?.length) {
-    query.whereIn("courses.category", categories);
-  }
-  if (periods?.length) {
-    query.whereIn("courses.period", periods);
-  }
-  if (languages?.length) {
-    query.whereIn("courses.language", languages);
-  }
-   // Apply "free or paid" filter
-   if (filters.isFree !== null) {
-    query.where("is_free", filters.isFree);
+  // Apply category filter
+  if (filters.categories.length > 0) {
+    query.whereIn("category", filters.categories);
   }
 
-  // Qidiruvni qo'shish
-  if (search) {
-    query.where(function () {
-      this.where("courses.name", "ilike", `%${search}%`)
-        .orWhere("courses.discription", "ilike", `%${search}%`);
-    });
+  // Apply period filter
+  if (filters.periods.length > 0) {
+    query.whereIn("period", filters.periods);
   }
 
-  return query;
+  // Apply language filter
+  if (filters.languages.length > 0) {
+    query.whereIn("language", filters.languages);
+  }
+
+  // Apply "free or paid" filter
+  if (filters.isFree !== null) {
+    query.whereRaw(`price ${filters.isFree ? "= 0" : "> 0"}`);
+  }
+
+  // Apply search filter
+  if (filters.search) {
+    query.where((builder) =>
+      builder
+        .where("name", "like", `%${filters.search}%`)
+        .orWhere("discription", "like", `%${filters.search}%`)
+    );
+  }
+
+  return await query;
 };
+
 
 // 1. Saqlangan kurslarni olish
 exports.getSavedCoursesService = async (userId) => {
