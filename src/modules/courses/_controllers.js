@@ -210,6 +210,21 @@ exports.getCourseDetails = async (req, res, next) => {
     next(err);
   }
 };
+exports.getlessondetails = async (req, res, next) => {
+  try {
+    const lessonId = parseInt(req.params.id, 10);
+    const userId = req.user.id;
+
+    const course = await getlesson(userId, lessonId);
+
+    res.status(200).json({
+      message: "Kurs detallari muvaffaqiyatli olindi.",
+      data: course,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 exports.getCourseDetailswithouttoken = async (req, res, next) => {
   try {
     const courseId = parseInt(req.params.id, 10);
@@ -241,6 +256,7 @@ exports.getCoursecardDetails = async (req, res, next) => {
 };
 
 const { addCommitSchema, addScoreSchema } = require("./_schemas");
+const { getlesson } = require("./lesson.js");
 
 exports.addCommit = async (req, res, next) => {
   try {
