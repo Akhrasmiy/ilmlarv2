@@ -36,7 +36,7 @@ exports.getlesson = async (userId, lessonId) => {
                 "file",
             ).first();
 
-        returing_videos = videos[0];
+        returing_videos = videos;
     }
     else {
         const videos = await db("courses_videos")
@@ -68,7 +68,7 @@ exports.getlesson = async (userId, lessonId) => {
                 ) // Sotib olinganlikni tekshirish
             ).first();
 
-        returing_videos = videos[0];
+        returing_videos = videos;
     }
 
 
