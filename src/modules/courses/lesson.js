@@ -24,7 +24,7 @@ exports.getlesson = async (userId, lessonId) => {
         course.is_purchased = true;
     } else course.is_purchased = false;
     let returing_videos = null
-    if (is_purchased) {
+    if (course.is_purchased) {
         const videos = await db("courses_videos")
             .where({ id: lessonId })
             .select(
