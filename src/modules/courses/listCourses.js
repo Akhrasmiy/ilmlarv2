@@ -92,8 +92,9 @@ exports.getCourseDetailsService = async (userId, courseId) => {
 
   // 3. `course_commit` larni olish
   const commits = await db("course_commit")
+  .join("users", "users.id", "course_commit.user_id")
     .where({ course_id: courseId })
-    .select("id", "user_id", "txt");
+    .select("course_commit.id", "course_commit.user_id", "course_commit.txt", "users.first_name","users.last_name","users.profile_img");
 
   course.commits = commits;
 
