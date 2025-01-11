@@ -145,6 +145,7 @@ exports.getCourses = async (req, res, next) => {
       teacherIds: req.query.teacher_ids ? req.query.teacher_ids.split(",") : [],
       categories: req.query.categories ? req.query.categories.split(",") : [],
       periods: req.query.periods ? req.query.periods.split(",") : [],
+      isFree: req.query.is_free ? req.query.is_free === "true" : null, // Add "is_free" filter
       languages: req.query.languages ? req.query.languages.split(",") : [],
       search: req.query.search || null,
     };

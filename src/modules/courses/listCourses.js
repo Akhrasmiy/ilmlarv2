@@ -29,6 +29,10 @@ exports.getCoursesService = async (userId, userRole,filters) => {
   if (languages?.length) {
     query.whereIn("courses.language", languages);
   }
+   // Apply "free or paid" filter
+   if (filters.isFree !== null) {
+    query.where("is_free", filters.isFree);
+  }
 
   // Qidiruvni qo'shish
   if (search) {
