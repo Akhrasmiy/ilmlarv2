@@ -43,6 +43,20 @@ async function toggleSubscription(studentId, teacherId) {
   }
 }
 
+async function getSubscriptionStatus(studentId, teacherId) {
+  try {
+    const subscription = await knex('subscriptions')
+      .where({ student_id: studentId, teacher_id: teacherId })
+      .first();
+
+    return subscription ? { subscribed: true } : { subscribed: false };
+  } catch (error) {
+    console.error('Error checking subscription status:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   toggleSubscription,
+  getSubscriptionStatus,
 };

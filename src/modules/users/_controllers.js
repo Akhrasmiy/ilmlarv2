@@ -9,7 +9,7 @@ const { editUser } = require('./edit-user');
 const userme = require('./userme');
 const { getPublicTeacherAccountService, getPublicTeachersAccountService } = require('./getTeacheraccount');
 const editProfileImage = require('./edit_users_image');
-const { toggleSubscription } = require('./subscription');
+const { toggleSubscription, getSubscriptionStatus } = require('./subscription');
 
 /**
  * @param {express.Request} req
@@ -153,6 +153,26 @@ const updatesubscription = async (req, res, next) => {
     next(error);
   }
 };
+const getsubscription = async (req, res, next) => {
+  try {
+    const student_id =req.user.id; 
+    const teacher_id =req.params.id; 
+
+    
+    const updatedUser = await getSubscriptionStatus(student_id, teacher_id);
+
+    if (!updatedUser) {
+      throw new NotFoundError("Foydalanuvchi topilmadi.");
+    }
+
+    res.status(200).json({
+      message: "Foydalanuvchi muvaffaqiyatli yangilandi.",
+      data: updatedUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 const getPublicTeacherAccount = async (req, res, next) => {
   try {
     const teacherId = req.params.id; // O'qituvchi ID query orqali keladi
@@ -209,5 +229,6 @@ module.exports = {
   GetUser,
   updateUser,
   editProfileimageController,
-  updatesubscription
+  updatesubscription,
+  getsubscription
 };
