@@ -8,17 +8,19 @@ const userme = async (data) => {
         .where({ id: data })
         .first();
     const amount = await db('transactions')
-        .where({ user_id:data })
+        .where({ user_id: data })
         .select(db.raw('SUM(credit) - SUM(debit) AS balance'))
         .first();
     const transactions_history = await db('transactions')
-        .where({ user_id:data }).orderBy("transactions.id",'desc')
-        .select("*")
+        .where({ user_id: data }).orderBy("transactions.id", 'desc')
+        .select("*");
 
+    // Obuna bo'lgan teacherlarni olish
+    const subscribedTeachers = await db('subscriptions')
+        .where({ student_id: data })
+        .pluck('teacher_id');
 
-    return {...user,amount,transactions_history };
+    return { ...user, amount, transactions_history, subscribedTeachers };
 };
-
-
 
 module.exports = userme;
