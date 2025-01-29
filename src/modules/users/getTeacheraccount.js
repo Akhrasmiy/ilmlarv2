@@ -5,23 +5,26 @@ const db = require("../../db/db.js");
  * @param {number} teacherId
  */
 exports.getPublicTeacherAccountService = async (teacherId) => {
+  // O'qituvchi haqida asosiy ma'lumot
   const teacher = await db("users")
     .where({ id: teacherId, type: 1 })
+    .leftJoin("teacher_more_date", "users.id", "teacher_more_date.user_id")
+    .select("users.id","users.type", "users.first_name", "users.last_name", "users.email", "users.profile_img","teacher_more_date.spiceal")
     .first();
 
   if (!teacher) {
-    throw new Error("Teacher not found or invalid teacher ID");
+    throw new Error("O'qituvchi topilmadi.");
   }
 
-  // Get the number of students subscribed to the teacher
-  const subscribedStudentsCount = await db('subscriptions')
+  // O'qituvchining kurslari
+  const courses = await db("courses")
     .where({ teacher_id: teacherId })
-    .count('student_id as count')
-    .first();
+    .select("id");
 
+  // Ma'lumotlarni birlashtirib qaytarish
   return {
     ...teacher,
-    subscribedStudentsCount: subscribedStudentsCount.count
+    courses,
   };
 };
 
