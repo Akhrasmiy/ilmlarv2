@@ -1,6 +1,6 @@
 const db = require("../../db/db.js");
 
-const getCoursesService = async (userId, userRole, filters) => {
+exports.getCoursesService = async (userId, userRole, filters) => {
   const query = db("courses")
     .select(
       "courses.*",
