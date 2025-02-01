@@ -10,6 +10,7 @@ const userme = require('./userme');
 const { getPublicTeacherAccountService, getPublicTeachersAccountService } = require('./getTeacheraccount');
 const editProfileImage = require('./edit_users_image');
 const { toggleSubscription, getSubscriptionStatus } = require('./subscription');
+const { BadRequestError, NotFoundError } = require('../../shared/errors');
 
 /**
  * @param {express.Request} req
