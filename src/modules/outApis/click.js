@@ -182,7 +182,6 @@ const payoutteacher = async (req, res, next) => {
         credit: 0,
         comment: "Payment to teacher",
         is_internal: false,
-        extra_id: extraId, // Save the generated extraId for reference
       });
 
       return res
