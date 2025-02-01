@@ -7,6 +7,11 @@ const userme = async (data) => {
     const user = await db("users")
         .where({ id: data })
         .first();
+
+    if (!user) {
+        throw new NotFoundError("Foydalanuvchi topilmadi.");
+    }
+
     const amount = await db('transactions')
         .where({ user_id: data })
         .select(db.raw('SUM(credit) - SUM(debit) AS balance'))
@@ -20,7 +25,14 @@ const userme = async (data) => {
         .where({ student_id: data })
         .pluck('teacher_id');
 
-    return { ...user, amount, transactions_history, subscribedTeachers };
+    let teacherMoreData = {};
+    if (user.type === 1) {
+        teacherMoreData = await db('teacher_more_date')
+            .where({ user_id: data })
+            .first();
+    }
+
+    return { ...user, amount, transactions_history, subscribedTeachers, teacherMoreData };
 };
 
 module.exports = userme;
