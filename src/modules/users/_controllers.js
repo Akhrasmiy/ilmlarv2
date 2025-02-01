@@ -5,12 +5,12 @@ const { postUserSChema, loginUserSchema, verifyUserSchema, forgotpasswordSchema,
 const signInUser = require('./login');
 const verified = require('./isverified');
 const { replynewpassword, newpassword } = require('./replynewpassword');
-const { editUser } = require('./edit-user');
 const userme = require('./userme');
 const { getPublicTeacherAccountService, getPublicTeachersAccountService } = require('./getTeacheraccount');
 const editProfileImage = require('./edit_users_image');
 const { toggleSubscription, getSubscriptionStatus } = require('./subscription');
 const { BadRequestError, NotFoundError } = require('../../shared/errors');
+const editUser = require('./edit-user');
 
 /**
  * @param {express.Request} req
