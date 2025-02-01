@@ -6,9 +6,14 @@ const db = require("../../db/db.js"); // Knex konfiguratsiyasi
  * @param {Object} data
  * @returns {Object} Yangilangan foydalanuvchi
  */
-exports.editUser = async (userId, data) => {
+const editUser = async (userId, data) => {
   console.log(userId, data);
-
+  const user = await db("users")
+    .where({ id: userId })
+    .first();
+  if (!user) {
+    throw new Error("Foydalanuvchi topilmadi.");
+  }
   // Foydalanuvchi nomi va emailni tekshirish
   const existingUserName = await db("users")
     .where("user_name", data.user_name)
@@ -41,6 +46,19 @@ exports.editUser = async (userId, data) => {
       ["id", "first_name", "last_name", "user_name", "email"]
     );
 
+  // If the user is a teacher, update the teacher_more_date table
+  if ((data.specialization || data.link || data.phone || data.info) && user.type === 1) {
+    await db("teacher_more_date")
+      .where({ user_id: userId })
+      .update({
+        spiceal: data.specialization,
+        link: data.link,
+        phone: data.phone,
+        info: data.info,
+      });
+  }
+
   return updatedUser;
 };
 
+module.exports = editUser;

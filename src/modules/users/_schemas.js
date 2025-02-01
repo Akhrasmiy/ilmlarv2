@@ -58,6 +58,10 @@ exports.editUserSchema = Joi.object({
     "string.empty": "Emailni kiritish majburiy.",
     "string.email": "Email noto'g'ri formatda kiritilgan.",
   }),
+  specialization: Joi.string().optional(), // Faqat o'qituvchi uchun
+  link: Joi.string().optional(), // Faqat o'qituvchi uchun
+  phone: Joi.string().optional(), // Faqat o'qituvchi uchun
+  info: Joi.string().optional(), // Faqat o'qituvchi uchun
 });
 exports.showUserSchema = {
   params: Joi.object({

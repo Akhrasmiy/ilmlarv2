@@ -104,8 +104,8 @@ const GetUser = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
   try {
-    const userId =req.user.id; // user id kerak 
-    const { first_name, last_name, user_name, email } = req.body;
+    const userId = req.user.id; // user id kerak 
+    const { first_name, last_name, user_name, email, specialization, link, phone, info } = req.body;
 
     // Validation
     const { error } = editUserSchema.validate(req.body);
@@ -118,6 +118,10 @@ const updateUser = async (req, res, next) => {
       last_name,
       user_name,
       email,
+      specialization,
+      link,
+      phone,
+      info,
     });
 
     if (!updatedUser) {
