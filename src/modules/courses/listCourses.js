@@ -32,21 +32,49 @@ exports.getCoursesService = async (userId, userRole, filters) => {
     query.whereIn("language", filters.languages);
   }
 
-  // Apply "free or paid" filter
-  if (filters.isFree !== null) {
-    query.whereRaw(`price ${filters.isFree ? "= 0" : "> 0"}`);
+  const courses = await query;
+
+  for (const course of courses) {
+    const courseId = course.id;
+
+    // Calculate average score
+    const averageScore = await db("course_score")
+      .where({ course_id: courseId })
+      .avg("score as average_score")
+      .first();
+    course.average_score = averageScore?.average_score || 0;
+
+    // Get the number of comments
+    const commentsCount = await db("course_commit")
+      .where({ course_id: courseId })
+      .count("id as count")
+      .first();
+    course.comments_count = commentsCount?.count || 0;
+
+    // Get the number of purchases
+    const purchasedCount = await db("course_users")
+      .where({ course_id: courseId })
+      .count("id as count")
+      .first();
+    course.purchased_count = purchasedCount?.count || 0;
+
+    // Get the number of saved courses
+    const savedCount = await db("save_courses")
+      .where({ course_id: courseId })
+      .count("id as count")
+      .first();
+    course.saved_count = savedCount?.count || 0;
+
+    // Get the number of active users
+    const activeUsersCount = await db("course_users")
+      .where({ course_id: courseId })
+      .andWhere("end_date", ">", new Date())
+      .count("id as count")
+      .first();
+    course.active_users = activeUsersCount?.count || 0;
   }
 
-  // Apply search filter
-  if (filters.search) {
-    query.where((builder) =>
-      builder
-        .where("name", "like", `%${filters.search}%`)
-        .orWhere("discription", "like", `%${filters.search}%`)
-    );
-  }
-
-  return await query;
+  return courses;
 };
 
 
