@@ -44,7 +44,10 @@ const getpercentage = async (req, res, next) => {
     throw new Error("Settings not found.");
   }
 
-  return latestSettings.percent;
+  res.status(201).json({
+    message: 'Kurs muvaffaqiyatli saqlandi.',
+    data: {percent:latestSettings.percent},
+  });
   } catch (error) {
     next(error);
   }
