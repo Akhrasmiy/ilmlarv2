@@ -1,10 +1,7 @@
-
 const axios = require("axios");
-const FormData = require("form-data");
-const fs = require("fs");
+const tus = require('tus-js-client');
 
 const VIMEO_ACCESS_TOKEN = "2ac395a2694246448051ee01faf135ce";
-const tus = require('tus-js-client'); 
 
 async function uploadTrailerToVimeo(file) {
   try {
@@ -31,12 +28,9 @@ async function uploadTrailerToVimeo(file) {
     // Step 2: Upload the file using tus-js-client
     return new Promise((resolve, reject) => {
       const upload = new tus.Upload(file.data, {
-        uploadUrl: uploadLink,
         endpoint: uploadLink,
-        retryDelays: [0, 1000, 3000, 5000],
-        metadata: {
-          filename: file.name,
-          filetype: file.mimetype,
+        headers: {
+          Authorization: `Bearer ${VIMEO_ACCESS_TOKEN}`,
         },
         onError: (error) => {
           console.error('Failed to upload video to Vimeo:', error);
@@ -46,9 +40,31 @@ async function uploadTrailerToVimeo(file) {
           const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
           console.log(`Upload progress: ${percentage}%`);
         },
-        onSuccess: () => {
+        onSuccess: async () => {
           console.log('File uploaded successfully.');
-          resolve(`https://vimeo.com${videoUri}`);
+
+          // Set video privacy settings to disable download
+          try {
+            await axios.patch(
+              `https://api.vimeo.com${videoUri}`,
+              {
+                privacy: {
+                  download: false, // Disable download
+                },
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${VIMEO_ACCESS_TOKEN}`,
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+            console.log('Video privacy settings updated successfully.');
+            resolve(`https://vimeo.com${videoUri}`);
+          } catch (error) {
+            console.error('Failed to set video privacy settings:', error);
+            reject(new Error('Failed to set video privacy settings.'));
+          }
         },
       });
 
@@ -60,4 +76,4 @@ async function uploadTrailerToVimeo(file) {
   }
 }
 
-module.exports = { uploadTrailerToVimeo }
+module.exports = { uploadTrailerToVimeo };
