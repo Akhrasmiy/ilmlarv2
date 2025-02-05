@@ -25,6 +25,9 @@ async function uploadTrailerToVimeo(file) {
     const uploadLink = initiateResponse.data.upload.upload_link;
     const videoUri = initiateResponse.data.uri; // URI of the uploaded video
 
+    console.log('Upload link:', uploadLink);
+    console.log('Video URI:', videoUri);
+
     // Step 2: Upload the file using tus-js-client
     return new Promise((resolve, reject) => {
       const upload = new tus.Upload(file.data, {
