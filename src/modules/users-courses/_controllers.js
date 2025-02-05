@@ -1,6 +1,7 @@
 const { saveCourseService } = require('./saveCoursesService');
 const httpValidator = require('../../shared/http-validator');
 const { saveCourseSchema } = require('./_schemas');
+const db = require("../../db/db.js");
 
 /**
  * @param {express.Request} req
@@ -29,6 +30,21 @@ const saveCourses = async (req, res, next) => {
       message: 'Kurs muvaffaqiyatli saqlandi.',
       data: savedCourse,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+const getpercentage = async (req, res, next) => {
+  try {
+    const latestSettings = await db("settings")
+    .orderBy("id", "desc")
+    .first();
+
+  if (!latestSettings) {
+    throw new Error("Settings not found.");
+  }
+
+  return latestSettings.percent;
   } catch (error) {
     next(error);
   }
@@ -65,5 +81,6 @@ const buyCourse = async (req, res, next) => {
 
 module.exports = {
   saveCourses,
-  buyCourse
+  buyCourse,
+  getpercentage
 };
