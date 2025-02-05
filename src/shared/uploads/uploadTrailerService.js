@@ -43,13 +43,22 @@ async function uploadTrailerToVimeo(file) {
         onSuccess: async () => {
           console.log('File uploaded successfully.');
 
-          // Set video privacy settings to disable download
+          // Set video privacy settings to disable download and restrict embedding
           try {
             await axios.patch(
               `https://api.vimeo.com${videoUri}`,
               {
                 privacy: {
                   download: false, // Disable download
+                  embed: {
+                    buttons: {
+                      embed: false, // Disable embed button
+                    },
+                    logos: {
+                      vimeo: false, // Disable Vimeo logo
+                    },
+                    whitelist: ["ilmlar.com"], // Allow embedding only on ilmlar.com
+                  },
                 },
               },
               {
