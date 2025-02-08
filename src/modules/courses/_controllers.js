@@ -8,7 +8,7 @@ const db = require("../../db/db.js");
 const { imguploads } = require("../../shared/uploads/imgupload");
 const { uploadTrailerToVimeo } = require("../../shared/uploads/uploadTrailerService");
 const { updateCourseService, updateCourseVideoService } = require("./editCourseService.js");
-const { getCoursesService, getCoursecardDetailsService, getCourseDetailsServicewithoutToken } = require("./listCourses.js");
+const { getCoursesService, getCoursecardDetailsService, getCourseDetailsServicewithoutToken, getCourseDetailsForTeacherService } = require("./listCourses.js");
 
 exports.createCourse = async (req, res, next) => {
   try {
@@ -211,6 +211,38 @@ exports.getCourseDetails = async (req, res, next) => {
     next(err);
   }
 };
+exports.getCourseDetailsForTeacher = async (req, res, next) => {
+  try {
+    const courseId = parseInt(req.params.id, 10);
+    const userId = req.user.id;
+
+    const course = await getCourseDetailsForTeacherService(userId, courseId);
+
+    res.status(200).json({
+      message: "Kurs detallari muvaffaqiyatli olindi.",
+      data: course,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getlessonForTeacherdetails = async (req, res, next) => {
+  try {
+    const lessonId = parseInt(req.params.id, 10);
+    const userId = req.user.id;
+
+    const course = await getLessonForTeacher(userId, lessonId);
+
+    res.status(200).json({
+      message: "Kurs detallari muvaffaqiyatli olindi.",
+      data: course,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.getlessondetails = async (req, res, next) => {
   try {
     const lessonId = parseInt(req.params.id, 10);
@@ -257,7 +289,7 @@ exports.getCoursecardDetails = async (req, res, next) => {
 };
 
 const { addCommitSchema, addScoreSchema } = require("./_schemas");
-const { getlesson } = require("./lesson.js");
+const { getlesson, getLessonForTeacher } = require("./lesson.js");
 
 exports.addCommit = async (req, res, next) => {
   try {

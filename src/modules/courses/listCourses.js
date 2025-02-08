@@ -280,6 +280,106 @@ exports.getCourseDetailsServicewithoutToken = async (courseId) => {
   return course;
 };
 
+exports.getCourseDetailsForTeacherService = async (userId, courseId) => {
+  const course = await db("courses")
+    .where("courses.id", courseId)
+    .select("courses.*")
+    .first();
+  if (!course) {
+    throw new Error("Kurs topilmadi.");
+  }
+  const course_users = await db("course_users")
+    .where("course_id", courseId)
+    .andWhere("user_id", userId)
+    .select("*")
+    .first();
+  if (course_users) {
+    course.is_purchased = true;
+  } else course.is_purchased = false;
+
+  // 1. Kursning o‘rtacha bahosini hisoblash
+  const averageScore = await db("course_score")
+    .where({ course_id: courseId })
+    .avg("score as average_score")
+    .first();
+
+  course.average_score = averageScore?.average_score || 0;
+
+  // 2. `course_study_party` larni olish
+  const studyParties = await db("course_study_party")
+    .where({ course_id: courseId })
+    .select("id", "name");
+
+  course.study_parties = studyParties;
+
+  // 3. `course_commit` larni olish
+  const commits = await db("course_commit")
+  .join("users", "users.id", "course_commit.user_id")
+    .where({ course_id: courseId })
+    .select("course_commit.id", "course_commit.user_id", "course_commit.txt", "users.first_name","users.last_name","users.profile_img");
+
+  course.commits = commits;
+
+  // 4. Sotib olinganlar sonini hisoblash
+  const purchasedCount = await db("course_users")
+    .where({ course_id: courseId })
+    .count("id as count")
+    .first();
+
+  course.purchased_count = purchasedCount?.count || 0;
+
+  // 5. Saqlangan kurslar sonini hisoblash
+  const savedCount = await db("save_courses")
+    .where({ course_id: courseId })
+    .count("id as count")
+    .first();
+
+  course.saved_count = savedCount?.count || 0;
+
+  // 6. Hozirda kursni o‘qiyotganlar soni
+  const activeUsersCount = await db("course_users")
+    .where({ course_id: courseId })
+    .andWhere("end_date", ">", new Date())
+    .count("id as count")
+    .first();
+
+  course.active_users = activeUsersCount?.count || 0;
+
+  // 7. Kursning videolarini olish
+  const videos = await db("courses_videos")
+    .where({ course_id: courseId })
+    .select(
+      "id",
+      "title",
+      "description",
+      "is_free",
+      db.raw(
+        `
+      CASE 
+        WHEN is_free = true THEN video_link
+        WHEN is_free = false AND ? = true THEN video_link
+        ELSE NULL
+      END AS video_link
+    `,
+        [course.is_purchased]
+      ), // Sotib olinganlikni tekshirish
+      db.raw(
+        `
+      CASE 
+        WHEN is_free = true THEN file
+        WHEN is_free = false AND ? = true THEN file
+        ELSE NULL
+      END AS file
+    `,
+        [course.is_purchased]
+      ) // Sotib olinganlikni tekshirish
+    );
+
+  course.videos = videos;
+
+  return course;
+};
+
 exports.getCoursecardDetailsService = async (userId, courseId) => {
   const course = await db("courses")
     .where({ "courses.id": courseId })
@@ -315,3 +415,74 @@ exports.getCoursecardDetailsService = async (userId, courseId) => {
 
   return course;
 };
+
+exports.getCourseDetailsForTeacherService = async (teacherId, courseId) => {
+  try {
+    const course = await db("courses")
+      .where({ teacher_id: teacherId, id: courseId })
+      .select(
+        "courses.*",
+        db.raw(`
+          CASE 
+            WHEN price = 0 THEN true
+            ELSE false
+          END AS is_free
+        `) // Dynamically calculate is_free based on price
+      )
+      .first();
+
+    if (!course) {
+      throw new Error("Course not found or you do not have permission to view this course.");
+    }
+
+    // Calculate average score
+    const averageScore = await db("course_score")
+      .where({ course_id: course.id })
+      .avg("score as average_score")
+      .first();
+    course.average_score = averageScore?.average_score || 0;
+
+    // Get the number of comments
+    const commentsCount = await db("course_commit")
+      .where({ course_id: course.id })
+      .count("id as count")
+      .first();
+    course.comments_count = commentsCount?.count || 0;
+
+    // Get the number of purchases
+    const purchasedCount = await db("course_users")
+      .where({ course_id: course.id })
+      .count("id as count")
+      .first();
+    course.purchased_count = purchasedCount?.count || 0;
+
+    // Get the number of saved courses
+    const savedCount = await db("save_courses")
+      .where({ course_id: course.id })
+      .count("id as count")
+      .first();
+    course.saved_count = savedCount?.count || 0;
+
+    // Get the number of active users
+    const activeUsersCount = await db("course_users")
+      .where({ course_id: course.id })
+      .andWhere("end_date", ">", new Date())
+      .count("id as count")
+      .first();
+    course.active_users = activeUsersCount?.count || 0;
+
+    // Get the video details
+    const videoDetails = await db("courses_videos")
+      .where({ course_id: course.id })
+      .select("id", "title", "description", "video_link", "is_free")
+      .orderBy("id", "asc");
+
+    course.videos = videoDetails;
+
+    return course;
+  } catch (error) {
+    console.error('Error fetching course details for teacher:', error);
+    throw new Error('Error fetching course details for teacher.');
+  }
+};
+
