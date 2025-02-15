@@ -1,26 +1,21 @@
+
 const axios = require("axios");
-const tus = require('tus-js-client');
-const fs = require('fs');
-const path = require('path');
+const FormData = require("form-data");
+const fs = require("fs");
 
 const VIMEO_ACCESS_TOKEN = "2ac395a2694246448051ee01faf135ce";
+const tus = require('tus-js-client'); 
 
-async function uploadTrailerToVimeo(filePath) {
+async function uploadTrailerToVimeo(file) {
   try {
-    if (typeof filePath !== 'string') {
-      throw new Error('The "filePath" argument must be of type string.');
-    }
-
-    const fileSize = fs.statSync(filePath).size;
-    const fileName = path.basename(filePath);
-
+    console.log(file.size);
     // Step 1: Initiate the upload with Vimeo
     const initiateResponse = await axios.post(
       'https://api.vimeo.com/me/videos',
       {
         upload: {
           approach: 'tus',
-          size: fileSize, // File size in bytes
+          size: file.size, // File size in bytes
         },
         privacy: { "download": false }
       },
@@ -37,14 +32,13 @@ async function uploadTrailerToVimeo(filePath) {
 
     // Step 2: Upload the file using tus-js-client
     return new Promise((resolve, reject) => {
-      const fileStream = fs.createReadStream(filePath);
-
-      const upload = new tus.Upload(fileStream, {
+      const upload = new tus.Upload(file.data, {
+        uploadUrl: uploadLink,
         endpoint: uploadLink,
         retryDelays: [0, 1000, 3000, 5000],
         metadata: {
-          filename: fileName,
-          filetype: 'video/mp4', // Adjust the file type as needed
+          filename: file.name,
+          filetype: file.mimetype,
         },
         onError: (error) => {
           console.error('Failed to upload video to Vimeo:', error);
@@ -54,40 +48,9 @@ async function uploadTrailerToVimeo(filePath) {
           const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
           console.log(`Upload progress: ${percentage}%`);
         },
-        onSuccess: async () => {
+        onSuccess: () => {
           console.log('File uploaded successfully.');
-
-          // Set video privacy settings to disable download and restrict embedding
-          try {
-            await axios.patch(
-              `https://api.vimeo.com${videoUri}`,
-              {
-                privacy: {
-                  download: false, // Disable download
-                  embed: {
-                    buttons: {
-                      embed: false, // Disable embed button
-                    },
-                    logos: {
-                      vimeo: false, // Disable Vimeo logo
-                    },
-                    whitelist: ["ilmlar.com"], // Allow embedding only on ilmlar.com
-                  },
-                },
-              },
-              {
-                headers: {
-                  Authorization: `Bearer ${VIMEO_ACCESS_TOKEN}`,
-                  'Content-Type': 'application/json',
-                },
-              }
-            );
-            console.log('Video privacy settings updated successfully.');
-            resolve(`https://vimeo.com${videoUri}`);
-          } catch (error) {
-            console.error('Failed to set video privacy settings:', error);
-            reject(new Error('Failed to set video privacy settings.'));
-          }
+          resolve(`https://vimeo.com${videoUri}`);
         },
       });
 
@@ -99,4 +62,4 @@ async function uploadTrailerToVimeo(filePath) {
   }
 }
 
-module.exports = { uploadTrailerToVimeo };
+module.exports = { uploadTrailerToVimeo }
