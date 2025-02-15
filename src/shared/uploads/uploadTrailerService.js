@@ -1,17 +1,22 @@
 const axios = require("axios");
 const tus = require('tus-js-client');
+const fs = require('fs');
+const path = require('path');
 
 const VIMEO_ACCESS_TOKEN = "2ac395a2694246448051ee01faf135ce";
 
-async function uploadTrailerToVimeo(file) {
+async function uploadTrailerToVimeo(filePath) {
   try {
+    const fileSize = fs.statSync(filePath).size;
+    const fileName = path.basename(filePath);
+
     // Step 1: Initiate the upload with Vimeo
     const initiateResponse = await axios.post(
       'https://api.vimeo.com/me/videos',
       {
         upload: {
           approach: 'tus',
-          size: file.size, // File size in bytes
+          size: fileSize, // File size in bytes
         },
         privacy: { "download": false }
       },
@@ -28,15 +33,14 @@ async function uploadTrailerToVimeo(file) {
 
     // Step 2: Upload the file using tus-js-client
     return new Promise((resolve, reject) => {
-      const upload = new tus.Upload(file, {
+      const fileStream = fs.createReadStream(filePath);
+
+      const upload = new tus.Upload(fileStream, {
         endpoint: uploadLink,
         retryDelays: [0, 1000, 3000, 5000],
         metadata: {
-          filename: file.name,
-          filetype: file.type,
-        },
-        headers: {
-          Authorization: `Bearer ${VIMEO_ACCESS_TOKEN}`,
+          filename: fileName,
+          filetype: 'video/mp4', // Adjust the file type as needed
         },
         onError: (error) => {
           console.error('Failed to upload video to Vimeo:', error);
