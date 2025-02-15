@@ -7,6 +7,10 @@ const VIMEO_ACCESS_TOKEN = "2ac395a2694246448051ee01faf135ce";
 
 async function uploadTrailerToVimeo(filePath) {
   try {
+    if (typeof filePath !== 'string') {
+      throw new Error('The "filePath" argument must be of type string.');
+    }
+
     const fileSize = fs.statSync(filePath).size;
     const fileName = path.basename(filePath);
 
