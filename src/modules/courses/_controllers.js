@@ -6,7 +6,6 @@ const { addCourseVideosService } = require("./addCourseVideosServise");
 const { completeCourseService } = require("./completedCourse");
 const db = require("../../db/db.js");
 const { imguploads } = require("../../shared/uploads/imgupload");
-const { uploadTrailerToVimeo } = require("../../shared/uploads/uploadTrailerService");
 const { updateCourseService, updateCourseVideoService } = require("./editCourseService.js");
 const { getCoursesService, getCoursecardDetailsService, getCourseDetailsServicewithoutToken, getCourseDetailsForTeacherService } = require("./listCourses.js");
 
@@ -52,6 +51,39 @@ exports.createCourse = async (req, res, next) => {
   }
 };
 
+exports.aaddCourseVideos = async (req, res, next) => {
+  try {
+    console.log(1)
+    const videoFile = req.files.video; // Video faylni olish
+    if (!videoFile) {
+      throw new Error("Video fayl kiritilmagan.");
+    }
+
+    // 1️⃣ **Video stream yaratish**
+    const videoStream = videoFile.data; // Faylni oqish
+    const fileInfo = {
+      name: videoFile.name,
+      mimetype: videoFile.mimetype,
+      size: videoFile.size,
+    };
+
+    // 2️⃣ **Vimeo'ga yuklash**
+    const videoUrl = await uploadVideoToVimeo(videoStream, fileInfo);
+
+    // 3️⃣ **Bazada saqlash**
+    await db("courses_videos").insert({
+      course_id: req.body.course_id,
+      title: req.body.title,
+      description: req.body.description,
+      video_link: videoUrl,
+      is_free: req.body.is_open || false,
+    });
+
+    res.status(201).json({ message: "✅ Video muvaffaqiyatli yuklandi." });
+  } catch (error) {
+    next(error);
+  }
+};
 exports.addCourseVideos = async (req, res, next) => {
   try {
     // const { error } = addCourseVideosSchema.validate(req.body);
@@ -290,6 +322,8 @@ exports.getCoursecardDetails = async (req, res, next) => {
 
 const { addCommitSchema, addScoreSchema } = require("./_schemas");
 const { getlesson, getLessonForTeacher } = require("./lesson.js");
+const { uploadVideoToVimeo } = require("../../shared/uploads/uploadVideoToVimeo.js");
+const { uploadTrailerToVimeo } = require("../../shared/uploads/uploadTrailerService.js");
 
 exports.addCommit = async (req, res, next) => {
   try {

@@ -1,5 +1,5 @@
 const express = require("express");
-const { createCourse, addCourseVideos, completeCourse, updateCourse, updateCourseVideo, getCourses, getSavedCourses, getPurchasedCourses, getCourseDetails, addCommit, addScore, getCoursecardDetails, getCourseDetailswithouttoken, getlessondetails, getCourseDetailsForTeacher, getlessonForTeacherdetails } = require("./_controllers");
+const { createCourse, addCourseVideos, completeCourse, updateCourse, updateCourseVideo, getCourses, getSavedCourses, getPurchasedCourses, getCourseDetails, addCommit, addScore, getCoursecardDetails, getCourseDetailswithouttoken, getlessondetails, getCourseDetailsForTeacher, getlessonForTeacherdetails, aaddCourseVideos } = require("./_controllers");
 const isTeacher = require("../../shared/auth/isteacher");
 const isLoggedIn = require("../../shared/auth/is-loggedin");
 const isCourseOwner = require("../../shared/auth/isCourseOwner");
@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.post("/", isLoggedIn, isTeacher, createCourse);
 router.post("/videos", isLoggedIn, isTeacher, isCourseOwner, addCourseVideos);
+router.post("/videoss", isLoggedIn, isTeacher, isCourseOwner, aaddCourseVideos);
 router.patch("/complete", isLoggedIn, isTeacher, isCourseOwner, completeCourse);
 router.get("/", isLoggedIn, getCourses);
 router.get("/donthavetoken",  getCourses);
