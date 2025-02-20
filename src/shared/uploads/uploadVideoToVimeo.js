@@ -20,7 +20,7 @@ const uploadVideoToVimeo = (videoFile) => {
       {
         name: 'My Video Upload',
         description: 'This is an uploaded video via API',
-        privacy: { view: 'anybody' }
+        privacy: { view: 'anybody',download: false}
       },
       async function (uri) {
         console.log('Video uploaded:', uri);
