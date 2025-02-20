@@ -1,62 +1,50 @@
-const axios = require("axios");
-const tus = require("tus-js-client");
+const fs = require('fs');
+const { Vimeo } = require('vimeo');
+const path = require('path');
 
-const VIMEO_ACCESS_TOKEN = "2ac395a2694246448051ee01faf135ce";
+const client = new Vimeo(
+  '7b85ff7d5311b2cffd78329c83b9e0e1fb8a723c',
+  'lOAIup4lasCSdySlIRf0Ihr+w04p5iudKgBInM2DDCyzLW9LxcCt2+Mz74R02lw3l2mQ0yS4gEa4c4rjNbDjd9BbobmoX7tFZ90+fHwx+xz5CR5H5v9tPM/pmz9zSzmH',
+  '2ac395a2694246448051ee01faf135ce'
+);
 
-async function uploadVideoToVimeo(videoStream, fileInfo) {
-  try {
-    // 1️⃣ **Vimeo API orqali yuklashni boshlash**
-    const initiateResponse = await axios.post(
-      "https://api.vimeo.com/me/videos",
+const uploadVideoToVimeo = (videoFile) => {
+  return new Promise(async (resolve, reject) => {
+    const tempPath = path.join(__dirname, "../../uploads", videoFile.name);
+
+    // Save the file temporarily
+    await fs.promises.writeFile(tempPath, videoFile.data);
+
+    client.upload(
+      tempPath,
       {
-        upload: {
-          approach: "tus",
-          size: fileInfo.size, // File hajmi
-        },
-        privacy: { download: false },
+        name: 'My Video Upload',
+        description: 'This is an uploaded video via API',
+        privacy: { view: 'anybody' }
       },
-      {
-        headers: {
-          Authorization: `Bearer ${VIMEO_ACCESS_TOKEN}`,
-          "Content-Type": "application/json",
-        },
+      async function (uri) {
+        console.log('Video uploaded:', uri);
+
+        // Delete the temporary file
+        await fs.promises.unlink(tempPath);
+
+        // Construct the full Vimeo URL
+        const videoUrl = `https://vimeo.com${uri}`;
+        resolve(videoUrl);
+      },
+      function (bytesUploaded, bytesTotal) {
+        console.log(`Upload progress: ${(bytesUploaded / bytesTotal) * 100}%`);
+      },
+      async function (error) {
+        console.error('Upload failed:', error);
+
+        // Delete the temporary file in case of an error
+        await fs.promises.unlink(tempPath);
+
+        reject(error);
       }
     );
-
-    const uploadLink = initiateResponse.data.upload.upload_link;
-    const videoUri = initiateResponse.data.uri; // Video manzili
-
-    // 2️⃣ **Tus orqali yuklash**
-    return new Promise((resolve, reject) => {
-        const upload = new tus.Upload(videoStream, {
-            endpoint: uploadLink, // `uploadLink` faqat `endpoint` bo‘lishi kerak
-            retryDelays: [0, 1000, 3000, 5000],
-            metadata: {
-              filename: fileInfo.name,
-              filetype: fileInfo.mimetype,
-            },
-            uploadUrl: uploadLink, // Bu ham faqat `uploadLink` bo‘lishi kerak
-            onError: (error) => {
-              console.error('Failed to upload video to Vimeo:', error);
-              reject(new Error('Video upload to Vimeo failed.'));
-            },
-            onProgress: (bytesUploaded, bytesTotal) => {
-              const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-              console.log(`Upload progress: ${percentage}%`);
-            },
-            onSuccess: () => {
-              console.log('File uploaded successfully.');
-              resolve(`https://vimeo.com${videoUri}`);
-            },
-          });          
-          
-
-      upload.start();
-    });
-  } catch (error) {
-    console.error("Vimeo yuklashni boshlashda xatolik:", error.response?.data || error.message);
-    throw new Error("Vimeo yuklashda muammo yuz berdi.");
-  }
-}
+  });
+};
 
 module.exports = { uploadVideoToVimeo };

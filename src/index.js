@@ -16,7 +16,7 @@ const app = express();
 
 // express-fileupload middleware
 app.use(fileUpload({
-    limits: { fileSize: 50 * 1024 * 1024 }, // Fayl hajmini 50MB ga cheklash
+    limits: { fileSize: 50 * 1024 * 1024*1024 }, // Fayl hajmini 50MB ga cheklash
 }));
 
 const swaggerSpec = swaggerJSDoc(options);

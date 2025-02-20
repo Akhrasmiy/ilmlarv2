@@ -1,5 +1,5 @@
 
-const {  addCourseVideosSchema, completeCourseSchema, editCourseVideosSchema, createCourseSchema } = require("./_schemas");
+const { addCourseVideosSchema, completeCourseSchema, editCourseVideosSchema, createCourseSchema } = require("./_schemas");
 const { BadRequestError } = require("../../shared/errors");
 const { createCourseService } = require("./createCourseservise");
 const { addCourseVideosService } = require("./addCourseVideosServise");
@@ -51,39 +51,38 @@ exports.createCourse = async (req, res, next) => {
   }
 };
 
-exports.aaddCourseVideos = async (req, res, next) => {
-  try {
-    console.log(1)
-    const videoFile = req.files.video; // Video faylni olish
-    if (!videoFile) {
-      throw new Error("Video fayl kiritilmagan.");
-    }
 
-    // 1️⃣ **Video stream yaratish**
-    const videoStream = videoFile.data; // Faylni oqish
-    const fileInfo = {
-      name: videoFile.name,
-      mimetype: videoFile.mimetype,
-      size: videoFile.size,
-    };
 
-    // 2️⃣ **Vimeo'ga yuklash**
-    const videoUrl = await uploadVideoToVimeo(videoStream, fileInfo);
 
-    // 3️⃣ **Bazada saqlash**
-    await db("courses_videos").insert({
-      course_id: req.body.course_id,
-      title: req.body.title,
-      description: req.body.description,
-      video_link: videoUrl,
-      is_free: req.body.is_open || false,
-    });
+// exports.aaddCourseVideos = async (req, res, next) => {
+//   try {
+//     console.log("✅ File upload started");
 
-    res.status(201).json({ message: "✅ Video muvaffaqiyatli yuklandi." });
-  } catch (error) {
-    next(error);
-  }
-};
+//     if (!req.files || !req.files.video) {
+//       throw new Error("Video fayl kiritilmagan.");
+//     }
+
+//     const videoFile = req.files.video;
+
+//     // Vimeoga yuklash
+//     const videoUrl = await uploadVideoToVimeo(videoFile);
+
+//     // Bazaga saqlash
+//     await db("courses_videos").insert({
+//       course_id: req.body.course_id,
+//       title: req.body.title,
+//       description: req.body.description,
+//       video_link: videoUrl,
+//       is_free: req.body.is_open || false,
+//     });
+
+//     res.status(201).json({ message: "✅ Video muvaffaqiyatli yuklandi.", videoUrl });
+//   } catch (error) {
+//     console.error("❌ Video yuklashda xatolik:", error);
+//     res.status(500).json({ error: "Video yuklashda muammo yuz berdi." });
+//   }
+// };
+
 exports.addCourseVideos = async (req, res, next) => {
   try {
     // const { error } = addCourseVideosSchema.validate(req.body);
@@ -193,9 +192,9 @@ exports.getCourses = async (req, res, next) => {
   }
 };
 
-const { 
-  getSavedCoursesService, 
-  getPurchasedCoursesService, 
+const {
+  getSavedCoursesService,
+  getPurchasedCoursesService,
   getCourseDetailsService,
 } = require("./listCourses.js");
 const { addScoreService, addCommitService } = require("./commitvsgrove.js");
@@ -294,7 +293,7 @@ exports.getCourseDetailswithouttoken = async (req, res, next) => {
   try {
     const courseId = parseInt(req.params.id, 10);
 
-    const course = await getCourseDetailsServicewithoutToken( courseId);
+    const course = await getCourseDetailsServicewithoutToken(courseId);
 
     res.status(200).json({
       message: "Kurs detallari muvaffaqiyatli olindi.",

@@ -9,7 +9,6 @@ const router = express.Router();
 
 router.post("/", isLoggedIn, isTeacher, createCourse);
 router.post("/videos", isLoggedIn, isTeacher, isCourseOwner, addCourseVideos);
-router.post("/videoss", isLoggedIn, isTeacher, isCourseOwner, aaddCourseVideos);
 router.patch("/complete", isLoggedIn, isTeacher, isCourseOwner, completeCourse);
 router.get("/", isLoggedIn, getCourses);
 router.get("/donthavetoken",  getCourses);
