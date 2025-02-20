@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { Vimeo } = require('vimeo');
 const path = require('path');
+const e = require('cors');
 
 const client = new Vimeo(
   '7b85ff7d5311b2cffd78329c83b9e0e1fb8a723c',
@@ -20,7 +21,18 @@ const uploadVideoToVimeo = (videoFile) => {
       {
         name: 'My Video Upload',
         description: 'This is an uploaded video via API',
-        privacy: { view: 'anybody',download: false}
+        privacy: { 
+           view: 'disable',
+          download: false,
+          embed: {
+            buttons: {
+              embed: false,
+            },
+            logos: {
+              vimeo: false,
+            },
+            whitelist: ["ilmlar.com"]
+          }}
       },
       async function (uri) {
         console.log('Video uploaded:', uri);
