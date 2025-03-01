@@ -2,7 +2,7 @@ module.exports= {
   development: {
       client: "pg",
       connection: {
-          connectionString: `postgresql://doadmin:AVNS_Z2VdRoO9s9gF-sRixWH@databaseilmlaroauth2-do-user-14137897-0.e.db.ondigitalocean.com:25060/defaultdb`,
+          connectionString: `postgresql://doadmin:AVNS_oy-cltQdJYqCIBYQ83U@db-postgresql-sfo2-46363-do-user-19209666-0.g.db.ondigitalocean.com:25060/defaultdb`,
           ssl: { rejectUnauthorized: false },
       },
       pool: { min: 0, max: 7 },
@@ -10,7 +10,7 @@ module.exports= {
   qa: {
       client: "pg",
       connection: {
-          connectionString: `postgresql://doadmin:AVNS_Z2VdRoO9s9gF-sRixWH@databaseilmlaroauth2-do-user-14137897-0.e.db.ondigitalocean.com:25060/defaultdb`,
+          connectionString: `postgresql://doadmin:AVNS_oy-cltQdJYqCIBYQ83U@db-postgresql-sfo2-46363-do-user-19209666-0.g.db.ondigitalocean.com:25060/defaultdb`,
           ssl: { rejectUnauthorized: false },
       },
       pool: { min: 0, max: 7 },
