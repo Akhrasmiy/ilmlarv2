@@ -88,11 +88,42 @@ exports.getSavedCoursesService = async (userId) => {
 
 // 2. Sotib olingan kurslarni olish
 exports.getPurchasedCoursesService = async (userId) => {
-  return await db("course_users")
+  const courses = await db("course_users")
     .join("courses", "course_users.course_id", "courses.id")
     .where({ "course_users.user_id": userId })
     .select("courses.*");
+
+  for (const course of courses) {
+    const courseId = course.id;
+
+    // Sotib olinganlar soni
+    const purchasedCount = await db("course_users")
+      .where({ course_id: courseId })
+      .count("id as count")
+      .first();
+
+    course.purchased_count = purchasedCount?.count || 0;
+
+    // Saqlangan kurslar soni
+    const savedCount = await db("save_courses")
+      .where({ course_id: courseId })
+      .count("id as count")
+      .first();
+
+    course.saved_count = savedCount?.count || 0;
+
+    // Commentlar soni
+    const commentCount = await db("course_commit")
+      .where({ course_id: courseId })
+      .count("id as count")
+      .first();
+
+    course.comment_count = commentCount?.count || 0;
+  }
+
+  return courses;
 };
+
 
 // 3. Kurs detallari (sotib olingan yoki olinmagan)
 exports.getCourseDetailsService = async (userId, courseId) => {
@@ -103,14 +134,32 @@ exports.getCourseDetailsService = async (userId, courseId) => {
   if (!course) {
     throw new Error("Kurs topilmadi.");
   }
+
   const course_users = await db("course_users")
     .where("course_id", courseId)
     .andWhere("user_id", userId)
     .select("*")
     .first();
+
   if (course_users) {
     course.is_purchased = true;
-  } else course.is_purchased = false;
+    course.start_date = course_users.start_date;
+    course.end_date = course_users.end_date;
+
+    const now = new Date();
+    const endDate = new Date(course_users.end_date);
+
+    if (endDate > now) {
+      course.days_left = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+    } else {
+      course.days_left = 0;
+    }
+  } else {
+    course.is_purchased = false;
+    course.start_date = null;
+    course.end_date = null;
+    course.days_left = 0;
+  }
 
   // 1. Kursning o‘rtacha bahosini hisoblash
   const averageScore = await db("course_score")
@@ -127,13 +176,13 @@ exports.getCourseDetailsService = async (userId, courseId) => {
 
   course.study_parties = studyParties;
 
-  // 3. `course_commit` larni olish
-  const commits = await db("course_commit")
-  .join("users", "users.id", "course_commit.user_id")
+  // 3. `course_commit` larni sonini olish
+  const commitsCount = await db("course_commit")
     .where({ course_id: courseId })
-    .select("course_commit.id", "course_commit.user_id", "course_commit.txt", "users.first_name","users.last_name","users.profile_img");
+    .count("id as count")
+    .first();
 
-  course.commits = commits;
+  course.commits_count = commitsCount?.count || 0;
 
   // 4. Sotib olinganlar sonini hisoblash
   const purchasedCount = await db("course_users")

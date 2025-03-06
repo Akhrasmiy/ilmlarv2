@@ -9,7 +9,10 @@ exports.getPublicTeacherAccountService = async (teacherId) => {
   const teacher = await db("users")
     .where({ 'users.id': teacherId, 'users.type': 1 })
     .leftJoin("teacher_more_date", "users.id", "teacher_more_date.user_id")
-    .select("users.id", "users.type", "users.first_name", "users.last_name", "users.email", "users.profile_img", "teacher_more_date.spiceal","teacher_more_date.link","teacher_more_date.info")
+    .leftJoin("teacher_status", "teacher_more_date.status", "teacher_status.id")
+    .select("users.id", "users.type", "users.first_name", "users.last_name", "users.email", "users.profile_img",
+       "teacher_more_date.spiceal", "teacher_more_date.link", "teacher_more_date.info"
+       ,"teacher_more_date.status", "teacher_status.name as status_name")
     .first();
 
   if (!teacher) {
@@ -40,7 +43,10 @@ exports.getPublicTeachersAccountService = async () => {
   const teachers = await db("users")
     .where({ type: 1 })
     .leftJoin("teacher_more_date", "users.id", "teacher_more_date.user_id")
-    .select("users.id", "users.first_name", "users.last_name", "users.email", "users.profile_img", "teacher_more_date.spiceal","teacher_more_date.link","teacher_more_date.info");
+    .leftJoin("teacher_status", "teacher_more_date.status", "teacher_status.id")
+    .select("users.id", "users.first_name", "users.last_name", "users.email", "users.profile_img",
+      "teacher_more_date.spiceal","teacher_more_date.status", "teacher_status.name as status_name",
+       "teacher_more_date.link", "teacher_more_date.info");
 
   // Har bir o'qituvchi uchun obuna bo'lgan studentlar sonini olish
   const teachersWithSubscriptionCount = await Promise.all(
