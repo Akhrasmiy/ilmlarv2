@@ -1,7 +1,6 @@
 const fs = require('fs');
 const { Vimeo } = require('vimeo');
 const path = require('path');
-const e = require('cors');
 
 const client = new Vimeo(
   '7b85ff7d5311b2cffd78329c83b9e0e1fb8a723c',
@@ -11,51 +10,61 @@ const client = new Vimeo(
 
 const uploadVideoToVimeo = (videoFile) => {
   return new Promise(async (resolve, reject) => {
-    const tempPath = path.join(__dirname, "../../uploads", videoFile.name);
+    try {
+      const tempPath = path.join(__dirname, '../../uploads', videoFile.name);
 
-    // Save the file temporarily
-    await fs.promises.writeFile(tempPath, videoFile.data);
+      // Save the uploaded file temporarily
+      await fs.promises.writeFile(tempPath, videoFile.data);
 
-    client.upload(
-      tempPath,
-      {
-        name: 'My Video Upload',
-        description: 'This is an uploaded video via API',
-        privacy: { 
-           view: 'disable',
-          download: false,
+      client.upload(
+        tempPath,
+        {
+          name: 'My Video Upload',
+          description: 'This is an uploaded video via API',
+          privacy: {
+            view: 'unlisted', // Allows embedding while keeping the video unlisted
+            download: false,
+            embed: 'whitelist' // Restricts embedding to allowed domains
+          },
           embed: {
-            buttons: {
-              embed: false,
+        buttons: {
+        like: false,
+        share: false,
+        },
+        logos: {
+        vimeo: false,
+        },
+        title: {
+              name: 'hide',
             },
-            logos: {
-              vimeo: false,
-            },
-            whitelist: ["ilmlar.com"]
-          }}
-      },
-      async function (uri) {
-        console.log('Video uploaded:', uri);
+            domains: ['ilmlar.com'] // Allow embedding only on ilmlar.com
+          }
+        },
+        async function (uri) {
+          console.log('Video uploaded:', uri);
 
-        // Delete the temporary file
-        await fs.promises.unlink(tempPath);
+          // Clean up the temporary file
+          await fs.promises.unlink(tempPath);
 
-        // Construct the full Vimeo URL
-        const videoUrl = `https://vimeo.com${uri}`;
-        resolve(videoUrl);
-      },
-      function (bytesUploaded, bytesTotal) {
-        console.log(`Upload progress: ${(bytesUploaded / bytesTotal) * 100}%`);
-      },
-      async function (error) {
-        console.error('Upload failed:', error);
+          // Return the Vimeo URL
+          resolve(`https://vimeo.com${uri}`);
+        },
+        function (bytesUploaded, bytesTotal) {
+          console.log(`Upload progress: ${((bytesUploaded / bytesTotal) * 100).toFixed(2)}%`);
+        },
+        async function (error) {
+          console.error('Upload failed:', error);
 
-        // Delete the temporary file in case of an error
-        await fs.promises.unlink(tempPath);
+          // Clean up the temporary file in case of an error
+          await fs.promises.unlink(tempPath);
 
-        reject(error);
-      }
-    );
+          reject(error);
+        }
+      );
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      reject(error);
+    }
   });
 };
 
