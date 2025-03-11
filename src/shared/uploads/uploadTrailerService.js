@@ -27,18 +27,26 @@ const uploadTrailerToVimeo = (videoFile) => {
             embed: 'whitelist' // Restricts embedding to allowed domains
           },
           embed: {
-        buttons: {
-        like: false,
-        share: false,
-        },
-        logos: {
-        vimeo: false,
-        },
-        title: {
-              name: 'hide',
+            buttons: {
+              like: false,
+              share: false,
+              watchlater: false, // "Add to Watch Later" tugmasini o'chirish
             },
-            domains: ['ilmlar.com'] // Allow embedding only on ilmlar.com
-          }
+            logos: {
+              vimeo: false, // Vimeo logotipini o'chirish
+              custom: {
+                active: false, // Custom logoni o'chirish
+              },
+            },
+            title: {
+              name: 'hide', // Video sarlavhasini yashirish
+            },
+            owner: {
+              name: false, // Foydalanuvchi nomini o'chirish
+              portrait: false, // Foydalanuvchi rasmini o'chirish
+            },
+            domains: ['ilmlar.com']
+          },
         },
         async function (uri) {
           console.log('Video uploaded:', uri);
