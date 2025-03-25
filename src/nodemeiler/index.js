@@ -6,7 +6,7 @@ const sendEmail = async (email, password) => {
     const response = await axios.post(
       "https://api.brevo.com/v3/smtp/email",
       {
-        sender: { name: "Ilmlar", email: "verify@ilmlar.com" },
+        sender: { name: "Ilmlar", email: "info@ilmlar.com" },
         to: [{ email: email }],
         subject: "Tasdiqlash kodi",
         htmlContent: `<h1>${password}</h1>`
