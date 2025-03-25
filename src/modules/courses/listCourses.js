@@ -118,7 +118,7 @@ exports.getPurchasedCoursesService = async (userId) => {
       .count("id as count")
       .first();
 
-    course.comment_count = commentCount?.count || 0;
+    course.comments_count = commentCount?.count || 0;
   }
 
   return courses;
