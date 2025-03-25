@@ -1,14 +1,32 @@
 Get http://localhost:3001/users?q=
 ###
-POST http://localhost:3001/users
+POST http://localhost:3004/api/users
 Content-Type: application/json
 
 {
-  "first_name": "john",
-  "last_name": "doe",
-  "username": "johndoe",
-  "password": "1234",
-  "email":"johndoe123456@gmail.com"
+ "email"
+: 
+"m1axmadov@gmail.com",
+"first_name"
+: 
+"Jack",
+"info"
+: 
+"sfdghrstghrt",
+"last_name"
+: 
+"Baratov",
+"password"
+: 
+"Jahongir7A",
+"phone"
+: 
+"998501015667",
+"specialization"
+: 
+"dbgfsdttgb",
+"type": "student",
+"username": "san_mani_dardim55"
 }
 ###
 POST http://localhost:3001/users/verify

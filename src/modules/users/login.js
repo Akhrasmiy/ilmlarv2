@@ -26,7 +26,7 @@ const signInUser = async (data) => {
 
   // JWT token yaratish
   const token = jwt.sign({ user: { id: existing.id } }, config.jwt.secret, {
-    expiresIn: "1h", // Tokenning amal qilish muddati
+    expiresIn: "1d", // Tokenning amal qilish muddati
   });
 
   return { token };
