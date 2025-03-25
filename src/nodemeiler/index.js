@@ -1,28 +1,27 @@
-const nodeMailer = require("nodemailer");
+const axios = require("axios");
 const { BadRequestError } = require("../shared/errors");
 
 const sendEmail = async (email, password) => {
-  const transporter = await nodeMailer.createTransport({
-    host: "smtp-relay.brevo.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: "88d729001@smtp-brevo.com",
-      pass: "ON4ZzktGjWa6wQgX" // Master Password ni shu joyga qo'ying
-    },
-  });
-
   try {
-    const info = await transporter.sendMail({
-      from: "verify@ilmlar.com",
-      to: email,
-      subject: "Tasdiqlash kodi",
-      html: `<h1>${password}</h1>`,
-    });
+    const response = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: { name: "Ilmlar", email: "verify@ilmlar.com" },
+        to: [{ email: email }],
+        subject: "Tasdiqlash kodi",
+        htmlContent: `<h1>${password}</h1>`
+      },
+      {
+        headers: {
+          "api-key": "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", // Brevo API kalitingizni shu joyga qo'ying
+          "Content-Type": "application/json"
+        }
+      }
+    );
 
-    return info.messageId;
+    return response.data.messageId;
   } catch (error) {
-    console.log(error);
+    console.error("Xatolik yuz berdi:", error.response?.data || error.message);
     throw new BadRequestError("Kod yuborishda xatolik");
   }
 };
