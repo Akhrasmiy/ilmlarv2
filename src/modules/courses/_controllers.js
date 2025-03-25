@@ -277,7 +277,7 @@ exports.getlessonForTeacherdetails = async (req, res, next) => {
 exports.getlessondetails = async (req, res, next) => {
   try {
     const lessonId = parseInt(req.params.id, 10);
-    const userId = req.user.id;
+    const userId = req?.user?.id||null;
 
     const course = await getlesson(userId, lessonId);
 

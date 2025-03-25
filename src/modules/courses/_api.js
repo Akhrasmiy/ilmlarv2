@@ -20,6 +20,7 @@ router.get("/purchased-courses", isLoggedIn, getPurchasedCourses); // Sotib olin
 router.get("/course/:id", isLoggedIn,  getCourseDetails); // Kurs detallari (sotib olingan yoki olinmagan)
 router.get("/course-forteacher/:id", isLoggedIn, isTeacher,  getCourseDetailsForTeacher); 
 router.get("/lesson/:id", isLoggedIn,  getlessondetails); // Kurs detallari (sotib olingan yoki olinmagan)
+router.get("/lesson/:id/withouttoken",  getlessondetails); // Kurs detallari (sotib olingan yoki olinmagan)
 router.get("/lesson-forteacher/:id", isLoggedIn,isTeacher,  getlessonForTeacherdetails); 
 router.get("/course/:id/withouttoken",  getCourseDetailswithouttoken); // Kurs detallari (sotib olingan yoki olinmagan)
 router.get("/coursecard/:id",  getCoursecardDetails); // Kurs detallari (sotib olingan yoki olinmagan)
