@@ -31,6 +31,13 @@ const userme = async (data) => {
             .where({ user_id: data })
             .first();
     }
+    if (user.type === 1) {
+        subscriptions = await db('subscriptions')
+            .where({ teacher_id: data })
+            .count("id as count")
+            .first();
+            user.subscriptions=subscriptions.count
+    }
 
     return { ...user, amount, transactions_history, subscribedTeachers, teacherMoreData };
 };

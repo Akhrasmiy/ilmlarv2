@@ -102,6 +102,7 @@ exports.getPurchasedCoursesService = async (userId) => {
       .count("id as count")
       .first();
 
+      
     course.purchased_count = purchasedCount?.count || 0;
 
     // Saqlangan kurslar soni
