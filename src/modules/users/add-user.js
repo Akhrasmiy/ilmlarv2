@@ -52,7 +52,9 @@ const addUser = async (data) => {
 
     // Parolni xeshlash
     const hashedPassword = await hash(data.password, 10);
-
+    if (data?.info && data?.info.length > 1000) {
+      throw new Error("O'zingiz haqingizda ma'lumot 1000 belgidan oshmasligi kerak.");
+    }
     // Tasdiqlash kodini yuborish
     await sendEmail(data.email, data.code);
 
