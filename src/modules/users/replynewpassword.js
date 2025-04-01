@@ -50,10 +50,8 @@ exports.newpassword = async (email, password, emailpassword) => {
     }
 
     const code = await db("confirmation_code")
-      .where({ user_id: existing.id })
-      .first();
-
-    if (!code || code.code !== emailpassword) {
+      .where({ user_id: existing.id });
+    if (!code || code.at(-1).code !== emailpassword) {
       throw new BadRequestError("Kod noto'g'ri.");
     }
 
