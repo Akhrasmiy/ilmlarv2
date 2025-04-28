@@ -1,7 +1,7 @@
 const db = require("../../db/db.js");
 
 exports.getCoursesService = async (userId, userRole, filters) => {
-  const query = db("courses")
+  const query =db("courses")
     .select(
       "courses.*",
       db.raw(`
@@ -11,22 +11,30 @@ exports.getCoursesService = async (userId, userRole, filters) => {
         END AS is_free
       `) // Dynamically calculate is_free based on price
     );
-
   // Apply teacher filter
   if (filters.teacherIds.length > 0) {
     query.whereIn("teacher_id", filters.teacherIds);
   }
-
+  if (filters.search !== null && filters.search !== '') {
+    query.where(function() {
+      this.where("name", "ilike", `%${filters.search}%`)
+        .orWhere("discription", "ilike", `%${filters.search}%`);
+    });
+  }
   // Apply category filter
   if (filters.categories.length > 0) {
     query.whereIn("category", filters.categories);
   }
-
   // Apply period filter
   if (filters.periods.length > 0) {
     query.whereIn("period", filters.periods);
   }
-
+  if (filters.isFree==='true') {
+    query.where("price", 0);
+  }
+  if (filters.isFree==='false') {
+    query.where("price", ">", 0);
+  }
   // Apply language filter
   if (filters.languages.length > 0) {
     query.whereIn("language", filters.languages);
