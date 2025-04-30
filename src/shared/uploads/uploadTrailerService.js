@@ -1,79 +1,105 @@
-const fs = require('fs');
-const { Vimeo } = require('vimeo');
-const path = require('path');
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/cloudfront-signer");
+const fs = require("fs").promises;
+const path = require("path");
+const { v4: uuidv4 } = require("uuid");
+require("dotenv").config(); // .env faylidan o‘qish uchun
 
-const client = new Vimeo(
-  '7b85ff7d5311b2cffd78329c83b9e0e1fb8a723c',
-  'lOAIup4lasCSdySlIRf0Ihr+w04p5iudKgBInM2DDCyzLW9LxcCt2+Mz74R02lw3l2mQ0yS4gEa4c4rjNbDjd9BbobmoX7tFZ90+fHwx+xz5CR5H5v9tPM/pmz9zSzmH',
-  '2ac395a2694246448051ee01faf135ce'
-);
+// AWS sozlamalari
+const s3Client = new S3Client({
+  region: "eu-north-1",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
-const uploadTrailerToVimeo = (videoFile) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const tempPath = path.join(__dirname, '../../uploads', videoFile.name);
+const cloudfrontDomain = "d276aggqk07mvs.cloudfront.net";
+const keyPairId = process.env.CLOUDFRONT_KEY_PAIR_ID; // To‘g‘ri Key Pair ID’ni .env’dan oling
+const privateKey = process.env.CLOUDFRONT_PRIVATE_KEY; // Private Key’ni .env’dan oling
 
-      // Save the uploaded file temporarily
-      await fs.promises.writeFile(tempPath, videoFile.data);
-
-      client.upload(
-        tempPath,
-        {
-          name: 'My Video Upload',
-          description: 'This is an uploaded video via API',
-          privacy: {
-            view: 'unlisted', // Allows embedding while keeping the video unlisted
-            download: false,
-            embed: 'whitelist' // Restricts embedding to allowed domains
-          },
-          embed: {
-            buttons: {
-              like: false,
-              share: false,
-              watchlater: false, // "Add to Watch Later" tugmasini o'chirish
-            },
-            logos: {
-              vimeo: false, // Vimeo logotipini o'chirish
-              custom: {
-                active: false, // Custom logoni o'chirish
-              },
-            },
-            title: {
-              name: 'hide', // Video sarlavhasini yashirish
-            },
-            owner: {
-              name: false, // Foydalanuvchi nomini o'chirish
-              portrait: false, // Foydalanuvchi rasmini o'chirish
-            },
-            domains: ['ilmlar.com']
-          },
-        },
-        async function (uri) {
-          console.log('Video uploaded:', uri);
-
-          // Clean up the temporary file
-          await fs.promises.unlink(tempPath);
-
-          // Return the Vimeo URL
-          resolve(`https://vimeo.com${uri}`);
-        },
-        function (bytesUploaded, bytesTotal) {
-          console.log(`Upload progress: ${((bytesUploaded / bytesTotal) * 100).toFixed(2)}%`);
-        },
-        async function (error) {
-          console.error('Upload failed:', error);
-
-          // Clean up the temporary file in case of an error
-          await fs.promises.unlink(tempPath);
-
-          reject(error);
-        }
-      );
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      reject(error);
-    }
+// Signed URL yaratish funksiyasi
+function getCloudFrontSignedUrl(key, expiresIn = 86400) {
+  const url = `https://${cloudfrontDomain}/${key}`;
+  return getSignedUrl({
+    url,
+    keyPairId,
+    privateKey,
+    dateLessThan: new Date(Date.now() + expiresIn * 1000), // expiresIn sekundda
   });
+}
+
+// Video yuklash funksiyasi
+const uploadTrailerToVimeo = async (videoFile) => {
+  try {
+    const tempPath = path.join(__dirname, "../../Uploads", videoFile.name);
+
+    // Vaqtinchalik faylni saqlash
+    await fs.writeFile(tempPath, videoFile.data);
+
+    // UUID generatsiyasi
+    const uniqueId = uuidv4();
+    const fileExtension = path.extname(videoFile.name).toLowerCase();
+    const uniqueFileName = `${uniqueId}-${videoFile.name}`;
+
+    // Content-Type
+    const contentTypes = {
+      ".mp4": "video/mp4",
+      ".webm": "video/webm",
+      ".mov": "video/quicktime",
+      ".m3u8": "application/x-mpegURL",
+    };
+    const contentType = contentTypes[fileExtension] || "application/octet-stream";
+
+    // S3’ga yuklash
+    const params = {
+      Bucket: "ilmlar-videos-2025",
+      Key: uniqueFileName,
+      Body: await fs.readFile(tempPath),
+      ContentType: contentType,
+      ACL: "private",
+    };
+
+    await s3Client.send(new PutObjectCommand(params));
+    console.log(`Video yuklandi: ${uniqueFileName}`);
+
+    // Signed URL yaratish
+    const signedUrl = getCloudFrontSignedUrl(uniqueFileName);
+    console.log("Signed URL:", signedUrl);
+
+    // Vaqtinchalik faylni o‘chirish
+    await fs.unlink(tempPath);
+
+    return uniqueFileName; // Faqat fayl nomini qaytarish
+  } catch (error) {
+    console.error("Xato:", error);
+    try {
+      await fs.unlink(tempPath);
+    } catch (err) {
+      console.error("Faylni o‘chirishda xato:", err);
+    }
+    throw error;
+  }
 };
 
-module.exports = { uploadTrailerToVimeo };
+// Express router uchun /get-signed-url endpoint
+const express = require("express");
+const router = express.Router();
+
+const getsignedurlforfront = async (req,res) => {
+  const { file } = req.query;
+
+  if (!file) {
+    return res.status(400).json({ error: "Fayl nomi kerak" });
+  }
+
+  try {
+    const signedUrl = getCloudFrontSignedUrl(file);
+    res.json({ signedUrl });
+  } catch (error) {
+    console.error("Signed URL xatosi:", error);
+    res.status(500).json({ error: "Signed URL yaratishda xato" });
+  }
+}
+
+module.exports = { uploadTrailerToVimeo, getsignedurlforfront };
