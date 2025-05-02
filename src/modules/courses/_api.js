@@ -27,6 +27,6 @@ router.get("/course/:id/withouttoken", getCourseDetailswithouttoken); // Kurs de
 router.get("/coursecard/:id", getCoursecardDetails); // Kurs detallari (sotib olingan yoki olinmagan)
 router.post("/course/:id/commit", isLoggedIn, addCommit); // Kursga izoh qo'shish
 router.post("/course/:id/score", isLoggedIn, addScore); // Kursga baho qo'shish
-router.get('/get-signed-url', getsignedurlforfront);
+// router.get('/get-signed-url', getsignedurlforfront);
 
 module.exports = router;
