@@ -9,9 +9,12 @@ const createCourseSchema = Joi.object({
   level: Joi.number().integer().optional(),
   language: Joi.number().integer().optional(),
   trieler: Joi.string().allow(""),
+  file:Joi.any().optional(),
+  trieler:Joi.any().optional(),
   study_parties: Joi.array()
     .items(
       Joi.object({
+        id: Joi.number().integer().optional(),
         name: Joi.string().required(),
       })
     )

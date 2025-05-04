@@ -173,7 +173,12 @@ exports.getCourseDetailsService = async (userId, courseId) => {
     course.end_date = null;
     course.days_left = 0;
   }
+  const commits = await db("course_commit")
+    .join("users", "users.id", "course_commit.user_id")
+    .where({ course_id: courseId })
+    .select("course_commit.id", "course_commit.user_id", "course_commit.txt", "users.first_name", "users.last_name", "users.profile_img");
 
+  course.commits = commits;
   // 1. Kursning o‘rtacha bahosini hisoblash
   const averageScore = await db("course_score")
     .where({ course_id: courseId })

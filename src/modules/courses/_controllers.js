@@ -123,7 +123,24 @@ exports.completeCourse = async (req, res, next) => {
 exports.updateCourse = async (req, res, next) => {
   try {
     console.log("Request Body:", req.body);
+    if (req.body.study_parties) {
+      try {
+        // Agar `study_parties` string bo'lsa, uni JSON obyektiga aylantiring
+        if (typeof req.body.study_parties === "string") {
+          req.body.study_parties = JSON.parse(req.body.study_parties);
+        }
 
+        // Har bir elementni tekshirish va string bo'lsa JSON parse qilish
+        req.body.study_parties = req.body.study_parties.map((party) => {
+          if (typeof party === "string") {
+            return JSON.parse(party); // Stringni obyektga aylantirish
+          }
+          return party; // Agar obyekt bo'lsa, qaytarish
+        });
+      } catch (parseError) {
+        throw new BadRequestError(`"study_parties" noto'g'ri formatda`);
+      }
+    }
     // Validatsiya
     const { error } = createCourseSchema.validate(req.body);
     if (error) {
@@ -150,11 +167,11 @@ exports.updateCourseVideo = async (req, res, next) => {
     const videoId = req.params.videoId;
     const teacherId = req.user.id;
 
-    // Validatsiya
-    const { error } = editCourseVideosSchema.validate(req.body);
-    if (error) {
-      throw new BadRequestError(error.details[0].message);
-    }
+    // // Validatsiya
+    // const { error } = editCourseVideosSchema.validate(req.body);
+    // if (error) {
+    //   throw new BadRequestError(error.details[0].message);
+    // }
 
     await updateCourseVideoService(videoId, teacherId, req.body, req.files);
 

@@ -32,8 +32,7 @@ exports.updateCourseService = async (courseId, teacherId, data, files) => {
     category: data.category,
     price: data.price || 0,
     period: data.period,
-    language: data.language,
-    updated_at: new Date(),
+    language: data.language
   });
 };
 
@@ -63,9 +62,8 @@ exports.updateCourseVideoService = async (videoId, teacherId, data, files) => {
   await db("courses_videos").where({ id: videoId }).update({
     file: fileUrl,
     title: data.title,
-    description: data.description,
+    discription: data.description || null,
     video_link: videoUrl,
     is_free: data.is_open || false,
-    updated_at: new Date(),
   });
 };

@@ -26,6 +26,7 @@ exports.getlesson = async (userId, lessonId) => {
             .andWhere("user_id", userId)
             .select("*")
             .first();
+        !course_users? course_users=await db("courses").where("teacher_id", userId).first() : "null";
     }
 
     course.is_purchased = !!course_users; // `!!` bilan boolean qiymatga o'girish
