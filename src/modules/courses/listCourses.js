@@ -141,12 +141,13 @@ exports.getPurchasedCoursesService = async (userId) => {
 // 3. Kurs detallari (sotib olingan yoki olinmagan)
 exports.getCourseDetailsService = async (userId, courseId) => {
   const course = await db("courses")
-    .where("courses.id", courseId)
+    .where("courses.idx", courseId)
     .select("courses.*")
     .first();
   if (!course) {
     throw new Error("Kurs topilmadi.");
   }
+  courseId = course.id;
 
   const course_users = await db("course_users")
     .where("course_id", courseId)
@@ -264,7 +265,7 @@ exports.getCourseDetailsService = async (userId, courseId) => {
 // 3. Kurs detallari (sotib olingan yoki olinmagan)
 exports.getCourseDetailsServicewithoutToken = async (courseId) => {
   const course = await db("courses")
-    .where("courses.id", courseId)
+    .where("courses.idx", courseId)
     .select("courses.*")
     .first();
 
@@ -274,7 +275,7 @@ exports.getCourseDetailsServicewithoutToken = async (courseId) => {
 
   // 1. Kursning o‘rtacha bahosini hisoblash
   const averageScore = await db("course_score")
-    .where({ course_id: courseId })
+    .where({ course_id: course.id })
     .avg("score as average_score")
     .first();
 
@@ -282,7 +283,7 @@ exports.getCourseDetailsServicewithoutToken = async (courseId) => {
 
   // 2. `course_study_party` larni olish
   const studyParties = await db("course_study_party")
-    .where({ course_id: courseId })
+    .where({ course_id: course.id })
     .select("id", "name");
 
   course.study_parties = studyParties;
@@ -290,14 +291,14 @@ exports.getCourseDetailsServicewithoutToken = async (courseId) => {
   // 3. `course_commit` larni olish
   const commits = await db("course_commit")
     .join("users", "users.id", "course_commit.user_id")
-    .where({ course_id: courseId })
+    .where({ course_id: course.id })
     .select("course_commit.id", "course_commit.user_id", "course_commit.txt", "users.first_name", "users.last_name", "users.profile_img");
 
   course.commits = commits;
 
   // 4. Sotib olinganlar sonini hisoblash
   const purchasedCount = await db("course_users")
-    .where({ course_id: courseId })
+    .where({ course_id: course.id })
     .count("id as count")
     .first();
 
@@ -305,7 +306,7 @@ exports.getCourseDetailsServicewithoutToken = async (courseId) => {
 
   // 5. Saqlangan kurslar sonini hisoblash
   const savedCount = await db("save_courses")
-    .where({ course_id: courseId })
+    .where({ course_id: course.id })
     .count("id as count")
     .first();
 
@@ -313,7 +314,7 @@ exports.getCourseDetailsServicewithoutToken = async (courseId) => {
 
   // 6. Hozirda kursni o‘qiyotganlar soni
   const activeUsersCount = await db("course_users")
-    .where({ course_id: courseId })
+    .where({ course_id: course.id })
     .andWhere("end_date", ">", new Date())
     .count("id as count")
     .first();
@@ -322,7 +323,7 @@ exports.getCourseDetailsServicewithoutToken = async (courseId) => {
 
   // 7. Kursning videolarini olish
   const videos = await db("courses_videos")
-    .where({ course_id: courseId })
+    .where({ course_id: course.id})
     .select(
       "id",
       "title",
@@ -449,7 +450,7 @@ exports.getCourseDetailsForTeacherService = async (userId, courseId) => {
 
 exports.getCoursecardDetailsService = async (userId, courseId) => {
   const course = await db("courses")
-    .where({ "courses.id": courseId })
+    .where({ "courses.idx": courseId })
     .select(
       "courses.*",
       db.raw(

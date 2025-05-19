@@ -22,7 +22,7 @@ exports.getPublicTeacherAccountService = async (teacherId) => {
   // O'qituvchining kurslari
   const courses = await db("courses")
     .where({ teacher_id: teacherId })
-    .select("id","is_verified","status");
+    .select("id","is_verified","status",'idx');
 
   // O'qituvchiga obuna bo'lgan studentlar soni
   const subscribedStudentsCount = await db('subscriptions')

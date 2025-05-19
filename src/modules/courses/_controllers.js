@@ -246,7 +246,7 @@ exports.getPurchasedCourses = async (req, res, next) => {
 
 exports.getCourseDetails = async (req, res, next) => {
   try {
-    const courseId = parseInt(req.params.id, 10);
+    const courseId = req.params.id;
     const userId = req.user.id;
 
     const course = await getCourseDetailsService(userId, courseId);
@@ -261,7 +261,7 @@ exports.getCourseDetails = async (req, res, next) => {
 };
 exports.getCourseDetailsForTeacher = async (req, res, next) => {
   try {
-    const courseId = parseInt(req.params.id, 10);
+    const courseId = req.params.id;
     const userId = req.user.id;
 
     const course = await getCourseDetailsForTeacherService(userId, courseId);
@@ -308,7 +308,7 @@ exports.getlessondetails = async (req, res, next) => {
 };
 exports.getCourseDetailswithouttoken = async (req, res, next) => {
   try {
-    const courseId = parseInt(req.params.id, 10);
+    const courseId = req.params.id;
 
     const course = await getCourseDetailsServicewithoutToken(courseId);
 
@@ -322,7 +322,7 @@ exports.getCourseDetailswithouttoken = async (req, res, next) => {
 };
 exports.getCoursecardDetails = async (req, res, next) => {
   try {
-    const courseId = parseInt(req.params.id, 10);
+    const courseId = req.params.id;
     const userId = req.user.id;
 
     const course = await getCoursecardDetailsService(userId, courseId);
