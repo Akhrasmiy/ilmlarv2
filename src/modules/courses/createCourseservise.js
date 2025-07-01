@@ -15,13 +15,13 @@ async function generateRandomString(name) {
       .trim()
       .replace(/\s+/g, "-"); // bo‘shliqlarni `-` bilan almashtiradi
   };
-  
+
   const randomSuffix = () => {
     return String(Math.floor(Math.random() * 10000)).padStart(4, "0");
   };
-  
- const existIdx=await db("courses").where("idx", idx).first()
   const idx = `${slugify(name)}-${randomSuffix()}`;
+  const existIdx = await db("courses").where("idx", idx).first();
+
   if (existIdx) {
     return generateRandomString(name);
   }
@@ -48,7 +48,6 @@ exports.createCourseService = async (data, file, trailerFile) => {
   if (trailerFile) {
     trailerUrl = await uploadTrailerToVimeo(trailerFile);
   }
- 
 
   // Prepare course data for insertion
   const courseData = {

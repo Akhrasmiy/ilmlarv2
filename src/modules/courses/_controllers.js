@@ -349,7 +349,7 @@ exports.addCommit = async (req, res, next) => {
       return res.status(400).json({ message: error.details[0].message });
     }
 
-    const courseId = parseInt(req.params.id, 10);
+    const courseId = req.params.id;
     const userId = req.user.id;
     const { text } = req.body;
 
@@ -372,7 +372,7 @@ exports.addScore = async (req, res, next) => {
       return res.status(400).json({ message: error.details[0].message });
     }
 
-    const courseId = parseInt(req.params.id, 10);
+    const courseId = req.params.id;
     const userId = req.user.id;
     const { score } = req.body;
 

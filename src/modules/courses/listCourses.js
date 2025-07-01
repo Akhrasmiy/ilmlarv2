@@ -140,7 +140,10 @@ exports.getPurchasedCoursesService = async (userId) => {
 
 // 3. Kurs detallari (sotib olingan yoki olinmagan)
 exports.getCourseDetailsService = async (userId, courseId) => {
-  const course = await db("courses")
+  const course = Number(courseId)? await db("courses")
+    .where("courses.id", courseId)
+    .select("courses.*")
+    .first(): await db("courses")
     .where("courses.idx", courseId)
     .select("courses.*")
     .first();
@@ -264,7 +267,10 @@ exports.getCourseDetailsService = async (userId, courseId) => {
 };
 // 3. Kurs detallari (sotib olingan yoki olinmagan)
 exports.getCourseDetailsServicewithoutToken = async (courseId) => {
-  const course = await db("courses")
+  const course =  Number(courseId)? await db("courses")
+    .where("courses.id", courseId)
+    .select("courses.*")
+    .first(): await db("courses")
     .where("courses.idx", courseId)
     .select("courses.*")
     .first();
