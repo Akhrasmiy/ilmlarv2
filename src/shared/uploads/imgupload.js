@@ -7,7 +7,7 @@ async function imguploads(file) {
     const formData = new FormData();
     formData.append('file', file.data, file.name);
     try {
-      const response = await axios.post('https://save.ilmlar.com/img-docs', formData, {
+      const response = await axios.post('https://api.ilmlar.com/img-docs', formData, {
         headers: formData.getHeaders()
       });
       console.log(response.data)

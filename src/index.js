@@ -5,6 +5,7 @@ const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const options = require("./swagger/options"); // Swagger konfiguratsiyasi
 const usersController = require("./modules/users/_api"); // Users API marshrutlari
+const saveController = require("./modules/root/save.ilmlar.com"); // savefile
 const categoryController = require("./modules/category/_api"); // Users API marshrutlari
 const coursesController = require("./modules/courses/_api"); // Users API marshrutlari
 const outApisController = require("./modules/outApis/_api"); // Users API marshrutlari
@@ -20,7 +21,7 @@ app.use(fileUpload({
 }));
 
 const swaggerSpec = swaggerJSDoc(options);
-
+app.use("/",saveController)
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // Swagger UI
 app.use(bodyParser.json());
 app.use(cors("*"));
