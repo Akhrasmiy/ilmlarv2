@@ -7,7 +7,7 @@ async function docsuploads(file) {
     const formData = new FormData();
     formData.append('file', file.data, file.name);
     try {
-      const response = await axios.post('https://api.ilmlar.com/pdf-docs2', formData, {
+      const response = await axios.post('https://api.ilmlar.com/pdf-docs', formData, {
         headers: formData.getHeaders()
       });
       console.log(response.data)
