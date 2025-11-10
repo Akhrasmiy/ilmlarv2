@@ -10,8 +10,8 @@ const sendEmail = async (email, password) => {
     port: 587,
     secure: false,
     auth: {
-      user: "giybatchat@gmail.com",
-      pass: "ifgmmkgchsuymepg",
+      user: "ilmlar.com.info@gmail.com",
+      pass: "qessxvonxlpjbprb",
     },
   });
   try {
