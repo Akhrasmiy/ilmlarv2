@@ -17,6 +17,10 @@ const {
   createCategoryController,
   updateCategoryController,
   deleteCategoryController,
+  getEnrollmentsList,
+  createTestEnrollmentController,
+  deleteEnrollmentController,
+  getTestEnrollmentsList,
 } = require("./_controllers");
 const isLoggedIn = require("../../shared/auth/is-loggedin");
 const isAdmin = require("../../shared/auth/isadmin");
@@ -53,5 +57,13 @@ router.get("/categories", getCategoriesList);
 router.post("/categories", createCategoryController);
 router.patch("/categories/:id", updateCategoryController);
 router.delete("/categories/:id", deleteCategoryController);
+
+// Enrollments
+router.get("/enrollments", getEnrollmentsList);
+router.delete("/enrollments/:id", deleteEnrollmentController);
+
+// Test enrollments
+router.get("/test-enrollments", getTestEnrollmentsList);
+router.post("/test-enrollments", createTestEnrollmentController);
 
 module.exports = router;

@@ -2,7 +2,15 @@ module.exports = {
     development: {
         client: "pg",
         connection: {
-            connectionString: `postgresql://doadmin:AVNS_oy-cltQdJYqCIBYQ83U@db-postgresql-sfo2-46363-do-user-19209666-0.g.db.ondigitalocean.com:25060/defaultdb`,
+            connectionString: `postgresql://doadmin:AVNS_oy-cltQdJYqCIBYQ83U@db-postgresql-sfo2-46363-do-user-19209666-0.g.db.ondigitalocean.com:25060/ilmlarv2`,
+            ssl: { rejectUnauthorized: false },
+        },
+        pool: { min: 0, max: 7 },
+    },
+    test: {
+        client: "pg",
+        connection: {
+            connectionString: process.env.TEST_DB_URL || `postgresql://doadmin:AVNS_oy-cltQdJYqCIBYQ83U@db-postgresql-sfo2-46363-do-user-19209666-0.g.db.ondigitalocean.com:25060/test-ilmlarv2`,
             ssl: { rejectUnauthorized: false },
         },
         pool: { min: 0, max: 7 },
