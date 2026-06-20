@@ -8,6 +8,7 @@ const { getUsers, getUserById, blockUser, unblockUser, deleteUser } = require(".
 const { getDashboardStats } = require("./adminStats");
 const { getTransactions } = require("./adminTransactions");
 const { getCategories, createCategory, updateCategory, deleteCategory } = require("./adminCategories");
+const { getEnrollments, createTestEnrollment, deleteEnrollment, getTestEnrollments } = require("./adminEnrollments");
 
 const getTeachers = async (req, res, next) => {
   try {
@@ -175,6 +176,58 @@ const deleteCategoryController = async (req, res, next) => {
   }
 };
 
+const getEnrollmentsList = async (req, res, next) => {
+  try {
+    const { page, limit, course_id, user_id } = req.query;
+    const result = await getEnrollments({
+      page: page ? Number(page) : 1,
+      limit: limit ? Math.min(Number(limit), 100) : 20,
+      course_id: course_id ? Number(course_id) : null,
+      user_id: user_id ? Number(user_id) : null,
+    });
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const createTestEnrollmentController = async (req, res, next) => {
+  try {
+    const { user_id, course_id, note } = req.body;
+    const result = await createTestEnrollment({
+      user_id: Number(user_id),
+      course_id: Number(course_id),
+      note,
+      admin_id: req.user.id,
+    });
+    res.status(201).json({ data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteEnrollmentController = async (req, res, next) => {
+  try {
+    const result = await deleteEnrollment(req.params.id);
+    res.json({ data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getTestEnrollmentsList = async (req, res, next) => {
+  try {
+    const { page, limit } = req.query;
+    const result = await getTestEnrollments({
+      page: page ? Number(page) : 1,
+      limit: limit ? Math.min(Number(limit), 100) : 20,
+    });
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getTeachers,
   getcourses,
@@ -193,4 +246,8 @@ module.exports = {
   createCategoryController,
   updateCategoryController,
   deleteCategoryController,
+  getEnrollmentsList,
+  createTestEnrollmentController,
+  deleteEnrollmentController,
+  getTestEnrollmentsList,
 };

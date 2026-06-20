@@ -1,4 +1,4 @@
-const { BadRequestError, NotFoundError, UnauthorizedError, ForbiddenError } = require("./errors");
+const { BadRequestError, NotFoundError, UnauthorizedError, ForbiddenError } = require("./index");
 const express = require("express");
 
 /**
