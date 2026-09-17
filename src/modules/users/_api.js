@@ -1,10 +1,11 @@
 const express = require('express');
-const { postUser, loginUser, verify, forgotPassword, forgotPassword2, GetUser, updateUser, getPublicTeacherAccount, getPublicTeacherAccounts, editProfileimageController, updatesubscription, getsubscription } = require('./_controllers');
+const { postUser, loginUser, verify, forgotPassword, forgotPassword2, GetUser, updateUser, getPublicTeacherAccount, getPublicTeacherAccounts, editProfileimageController, updatesubscription, getsubscription, uploadTeacherImage } = require('./_controllers');
 const isLoggedIn = require('../../shared/auth/is-loggedin');
 
 const router = express.Router();
 
 router.post('/', postUser);
+router.post("/teacher/:id/image", uploadTeacherImage);
 router.put('/',isLoggedIn, updateUser);
 router.put('/subscription/:id',isLoggedIn, updatesubscription);
 router.get('/subscription/:id',isLoggedIn, getsubscription);

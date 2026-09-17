@@ -11,12 +11,38 @@ const editProfileImage = require('./edit_users_image');
 const { toggleSubscription, getSubscriptionStatus } = require('./subscription');
 const { BadRequestError, NotFoundError } = require('../../shared/errors');
 const editUser = require('./edit-user');
+const { uploadTeacherImageService } = require('./imguploadsforteacher');
 
 /**
  * @param {express.Request} req
  * @param {express.Response} res
  * @param {express.NextFunction} next
  */
+
+exports.uploadTeacherImage = async (req, res, next) => {
+  try {
+    const idx = req.params.id;
+
+    if (!req.files || !req.files.file) {
+      return res.status(400).json({
+        message: "Rasm fayli yuborilmagan.",
+      });
+    }
+
+    const result = await uploadTeacherImageService(
+      idx,
+      req.files.file
+    );
+
+    res.status(200).json({
+      message: "Kurs rasmi muvaffaqiyatli yuklandi.",
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const postUser = async (req, res, next) => {
   try {
     httpValidator({ body: req.body }, postUserSChema);
