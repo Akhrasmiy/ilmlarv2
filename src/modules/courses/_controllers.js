@@ -8,7 +8,9 @@ const db = require("../../db/db.js");
 const { imguploads } = require("../../shared/uploads/imgupload");
 const { updateCourseService, updateCourseVideoService } = require("./editCourseService.js");
 const { getCoursesService, getCoursecardDetailsService, getCourseDetailsServicewithoutToken, getCourseDetailsForTeacherService } = require("./listCourses.js");
-
+const {
+  uploadCourseImageService,
+} = require("./imguploadsforcourse");
 exports.createCourse = async (req, res, next) => {
   try {
     console.log(req.body)
@@ -50,7 +52,29 @@ exports.createCourse = async (req, res, next) => {
     next(err);
   }
 };
+exports.uploadCourseImage = async (req, res, next) => {
+  try {
+    const idx = req.params.idx;
 
+    if (!req.files || !req.files.file) {
+      return res.status(400).json({
+        message: "Rasm fayli yuborilmagan.",
+      });
+    }
+
+    const result = await uploadCourseImageService(
+      idx,
+      req.files.file
+    );
+
+    res.status(200).json({
+      message: "Kurs rasmi muvaffaqiyatli yuklandi.",
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 
 
