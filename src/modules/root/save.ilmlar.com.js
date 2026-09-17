@@ -54,28 +54,56 @@ async function getPresignedUrl(bucketName, fileKey, expiresIn = 3600) {
 
 
 
+
 router.post('/img-docs', async (req, res) => {
     try {
-        console.log(3)
+        console.log(3);
+
         if (!req.files || !req.files.file) {
             return res.status(400).send('No files were uploaded.');
         }
 
         const file = req.files.file;
+
+        // 20 MB limit
         if (file.size > 20 * 1024 * 1024) {
             return res.status(400).send('File is too big.');
         }
 
-        const fileExtension = file.name.split('.').pop();
-        const uuid = uuidv4();
-        const fileName = `images/${uuid}.${fileExtension}`;
-        if (!file.mimetype.startsWith('image/') && file.mimetype !== 'application/pdf') {
-            return res.status(400).send('No files were uploaded.');
+        // Faqat image yoki PDF
+        if (
+            !file.mimetype.startsWith('image/') &&
+            file.mimetype !== 'application/pdf'
+        ) {
+            return res.status(400).send('Invalid file type.');
         }
 
+        // Extension
+        const extension = path.extname(file.name).toLowerCase();
 
-        const s3Url = await uploadToS3(file.data, fileName, bucketName, file.mimetype);
-        res.send(s3Url);
+        // UUID
+        const uuid = uuidv4();
+
+        // src dan tashqaridagi uploads/images
+        const uploadDir = path.join(__dirname, '../../uploads/images');
+
+        // Papka yo'q bo'lsa yaratadi
+        fs.mkdirSync(uploadDir, { recursive: true });
+
+        const fileName = `${uuid}${extension}`;
+        const filePath = path.join(uploadDir, fileName);
+
+        // Serverga saqlash
+        await file.mv(filePath);
+
+        // Internet orqali ochiladigan URL
+        const url = `https://api.ilmlar.com/uploads/images/${fileName}`;
+
+        console.log('Saved:', filePath);
+        console.log('URL:', url);
+
+        res.send(url);
+
     } catch (err) {
         console.error('Error handling file upload:', err);
         res.status(500).send('Internal server error.');

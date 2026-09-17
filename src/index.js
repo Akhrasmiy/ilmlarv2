@@ -12,6 +12,7 @@ const outApisController = require("./modules/outApis/_api"); // Users API marshr
 const userCoursesRoute = require("./modules/users-courses/_api"); // Users API marshrutlari
 const adminapis = require("./modules/adminapis/_api"); // Users API marshrutlari
 const fileUpload = require("express-fileupload");
+const path = require('path');
 
 const app = express();
 
@@ -21,6 +22,10 @@ app.use(fileUpload({
 }));
 
 const swaggerSpec = swaggerJSDoc(options);
+app.use(
+    '/uploads',
+    express.static(path.join(__dirname, '../uploads'))
+);
 app.use("/",saveController)
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // Swagger UI
 app.use(bodyParser.json());
