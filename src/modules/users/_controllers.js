@@ -13,13 +13,8 @@ const { BadRequestError, NotFoundError } = require('../../shared/errors');
 const editUser = require('./edit-user');
 const { uploadTeacherImageService } = require('./imguploadsforteacher');
 
-/**
- * @param {express.Request} req
- * @param {express.Response} res
- * @param {express.NextFunction} next
- */
 
-exports.uploadTeacherImage = async (req, res, next) => {
+const uploadTeacherImage = async (req, res, next) => {
   try {
     const idx = req.params.id;
 
@@ -261,5 +256,6 @@ module.exports = {
   updateUser,
   editProfileimageController,
   updatesubscription,
-  getsubscription
+  getsubscription,
+  uploadTeacherImage
 };

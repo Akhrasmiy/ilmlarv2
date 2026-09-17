@@ -1,5 +1,6 @@
 const express = require('express');
-const { postUser, loginUser, verify, forgotPassword, forgotPassword2, GetUser, updateUser, getPublicTeacherAccount, getPublicTeacherAccounts, editProfileimageController, updatesubscription, getsubscription, uploadTeacherImage } = require('./_controllers');
+const { postUser, loginUser, verify, forgotPassword, forgotPassword2, GetUser, updateUser, getPublicTeacherAccount, getPublicTeacherAccounts, editProfileimageController, updatesubscription, getsubscription } = require('./_controllers');
+const {uploadTeacherImage} = require('./_controllers');
 const isLoggedIn = require('../../shared/auth/is-loggedin');
 
 const router = express.Router();
