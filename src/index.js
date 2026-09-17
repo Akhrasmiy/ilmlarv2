@@ -24,7 +24,7 @@ app.use(fileUpload({
 const swaggerSpec = swaggerJSDoc(options);
 app.use(
     '/uploads',
-    express.static(path.join(__dirname, '../uploads'))
+    express.static(path.join(__dirname, '/uploads'))
 );
 app.use("/",saveController)
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // Swagger UI
