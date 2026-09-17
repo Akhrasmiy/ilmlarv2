@@ -1,5 +1,4 @@
 
-
 const nodeMailer = require("nodemailer");
 const { BadRequestError } = require("../shared/errors");
 
@@ -11,7 +10,7 @@ const sendEmail = async (email, password) => {
     secure: false,
     auth: {
       user: "ilmlar.com.info@gmail.com",
-      pass: "qessxvonxlpjbprb",
+      pass: "uasoxsywikcrbnyt",
     },
   });
   try {
